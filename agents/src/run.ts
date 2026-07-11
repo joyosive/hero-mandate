@@ -54,7 +54,7 @@ const TRADE_ETH = parseEther("0.0004");
 const TRADE_ARB = parseEther("0.0003");
 const BREACH_SCOPE_AMOUNT = parseEther("0.0002");
 const BREACH_CAP_AMOUNT = parseEther("0.005");
-const GAS_STAKE = parseEther("0.002");
+const GAS_STAKE = parseEther("0.0005");
 
 const BREACH_NAMES: Record<number, string> = {
   1: "expiry",
@@ -297,8 +297,8 @@ async function main(): Promise<void> {
   log("BOOT", `momentum      ${momentum.address}`);
 
   const treasuryBalance = await provider.getBalance(treasury.address);
-  if (treasuryBalance < parseEther("0.012")) {
-    console.error(`treasury balance ${eth(treasuryBalance)} is too low. Need about 0.012 ETH for escrow plus gas.`);
+  if (treasuryBalance < parseEther("0.0075")) {
+    console.error(`treasury balance ${eth(treasuryBalance)} is too low. Need about 0.0075 ETH for escrow plus gas.`);
     process.exit(1);
   }
 
