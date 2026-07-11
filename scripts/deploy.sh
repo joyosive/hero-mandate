@@ -17,7 +17,7 @@ BAL=$(cast balance "$DEPLOYER_ADDRESS" --rpc-url "$RPC" --ether)
 echo "deployer $DEPLOYER_ADDRESS balance: $BAL ETH"
 
 cd contracts
-OUT=$(cargo stylus deploy --endpoint "$RPC" --private-key "$DEPLOYER_PRIVATE_KEY" --no-verify 2>&1) || {
+OUT=$(cargo stylus deploy --endpoint "$RPC" --private-key "$DEPLOYER_PRIVATE_KEY" --no-verify 2>&1 | sed -E "s/\x1B\[[0-9;]*[A-Za-z]//g") || {
   echo "$OUT" | tail -20; exit 1;
 }
 echo "$OUT" | grep -iE "deployed code|activated|address|tx hash" | head -6
