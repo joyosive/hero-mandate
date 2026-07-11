@@ -1,0 +1,22 @@
+{
+  "name": "hero-fhe-spike",
+  "version": "1.0.0",
+  "description": "Live Fhenix CoFHE encrypted-authority spike on Arbitrum Sepolia",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "encrypt": "node src/1-encrypt.mjs",
+    "grant": "node src/2-grant.mjs",
+    "act": "node src/3-act.mjs",
+    "decrypt": "node src/4-decrypt.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@cofhe/sdk": "^0.6.1",
+    "@fhenixprotocol/cofhe-contracts": "^0.1.4",
+    "viem": "^2.55.0"
+  }
+}

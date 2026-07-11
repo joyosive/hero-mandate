@@ -24,10 +24,10 @@ const RAILS = [
   },
   {
     name: "Fhenix",
-    body: "The seal. Scope stays private today through merkle commitments. Numeric limits go fully encrypted with CoFHE as the coprocessor lands.",
-    href: "https://blog.arbitrum.io/fhenix-private-computation/",
-    link: "fhenix on the arbitrum blog",
-    roadmap: true,
+    body: "The seal. Encrypted authority runs LIVE on Arbitrum Sepolia: grant enc(500), act enc(40), homomorphic subtraction on the coprocessor, decrypted readback 460. Robinhood Chain pending coprocessor.",
+    href: "https://sepolia.arbiscan.io/tx/0x3833fbdf5b1ee20813bc8ab9afc9e801026b5b3a356e04ed204239b2eac00d1d",
+    link: "the encrypted act tx on Arbiscan",
+    roadmap: false,
   },
   {
     name: "MPP + Permit2",
