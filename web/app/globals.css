@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0a0b09;
+  --color-panel: #101209;
+  --color-acid: #aaff00;
+  --color-white: #eceee6;
+  --color-muted: #7a7e72;
+  --color-dim: #4c4f47;
+  --color-err: #ff5470;
+  --color-cyan: #22d3ee;
+}
+
+@theme inline {
+  --font-display: var(--font-space-grotesk), "Space Grotesk", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+  --font-body: var(--font-inter), "Inter", sans-serif;
+}
+
+html {
+  background-color: var(--color-bg);
+}
+
+body {
+  min-height: 100dvh;
+  background-color: var(--color-bg);
+  background-image: linear-gradient(
+      to right,
+      rgba(170, 255, 0, 0.035) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgba(170, 255, 0, 0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  color: var(--color-white);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-acid);
+  color: var(--color-bg);
+}
+
+/* Pill: mono uppercase tag, used for chain switcher, LIVE/SIM, node labels */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--color-dim);
+  border-radius: 9999px;
+  padding: 0.2rem 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.pill-acid {
+  border-color: var(--color-acid);
+  color: var(--color-acid);
+}
+
+.pill-cyan {
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+}
+
+.pill-err {
+  border-color: var(--color-err);
+  color: var(--color-err);
+}
+
+.pill-btn {
+  cursor: pointer;
+  transition: border-color 120ms ease, color 120ms ease,
+    background-color 120ms ease;
+}
+
+.pill-btn:hover {
+  border-color: var(--color-acid);
+  color: var(--color-acid);
+}
+
+.pill-btn[data-active="true"] {
+  border-color: var(--color-acid);
+  background: rgba(170, 255, 0, 0.08);
+  color: var(--color-acid);
+}
+
+/* Button: acid outline, fills acid on hover */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--color-acid);
+  border-radius: 9999px;
+  padding: 0.35rem 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-acid);
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.btn:hover {
+  background: var(--color-acid);
+  color: var(--color-bg);
+}
+
+.btn:disabled {
+  border-color: var(--color-dim);
+  color: var(--color-dim);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+/* Panel card */
+.panel {
+  background: var(--color-panel);
+  border: 1px solid rgba(76, 79, 71, 0.55);
+  border-radius: 0.75rem;
+}
+
+.live-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--color-acid);
+  box-shadow: 0 0 8px rgba(170, 255, 0, 0.8);
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+.live-dot-sim {
+  background: var(--color-cyan);
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.8);
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

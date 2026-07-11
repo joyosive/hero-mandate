@@ -1,0 +1,57 @@
+{
+  "note": "Deterministic SIM fixture. Mirrors the demo scenario in ARCHITECTURE.md. Expiry values are offsets from load time so countdowns stay live.",
+  "mandates": [
+    {
+      "id": 1,
+      "parentId": 0,
+      "agent": "0x0e0E0e0e0E0e0e0e0e0E0E0e0e0e0e0e0E0E0e01",
+      "capacity": "500000000000000000",
+      "remaining": "350000000000000000",
+      "expiryOffsetSec": 86400,
+      "scopeRoot": "0xb3d0d21e7cf6e20a129672555b70231f959bfff319d869b9652a9b4c96dcdf2b",
+      "modelHash": "0x4f791a2aaf13bbe274065e6f2c4cb37632ad8ef34ec730bd475ffb6b71f86bd6",
+      "receiptHead": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "breaches": 0,
+      "receipts": [],
+      "breachEvents": []
+    },
+    {
+      "id": 2,
+      "parentId": 1,
+      "agent": "0x0e0E0E0E0e0E0e0E0e0e0e0e0e0E0e0E0e0E0E02",
+      "capacity": "150000000000000000",
+      "remaining": "60000000000000000",
+      "expiryOffsetSec": 43200,
+      "scopeRoot": "0xe460a7366e55f5e153fb4bb97f70d7559cd2fab0c80cec57fca02ac3ecbd0a98",
+      "modelHash": "0x74a7953748775e9b9e569562c316c3bc25e4d20e369c6fa6ab8848a261cdcd77",
+      "receiptHead": "0x12799557bc38e1ce1b60dd62748895deea25aab8c7362ba3cc21858e13209c90",
+      "breaches": 2,
+      "receipts": [
+        {
+          "instrument": "ETH-USD",
+          "amount": "40000000000000000",
+          "timestamp": 1783605912,
+          "newHead": "0xeaf40cd577d9714adfc6676296850296a73758cf86f27c887d5f0b449c7dad5b"
+        },
+        {
+          "instrument": "ARB-USD",
+          "amount": "50000000000000000",
+          "timestamp": 1783606967,
+          "newHead": "0x12799557bc38e1ce1b60dd62748895deea25aab8c7362ba3cc21858e13209c90"
+        }
+      ],
+      "breachEvents": [
+        {
+          "code": 3,
+          "instrument": "BTC-USD",
+          "amount": "20000000000000000"
+        },
+        {
+          "code": 2,
+          "instrument": "ETH-USD",
+          "amount": "500000000000000000"
+        }
+      ]
+    }
+  ]
+}

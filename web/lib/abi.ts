@@ -1,0 +1,133 @@
+// Hand-written JSON ABI for the ChainOfMandate contract.
+// Must stay in lockstep with the Stylus contract interface.
+
+export const MANDATE_ABI = [
+  {
+    type: "function",
+    name: "createMandate",
+    stateMutability: "payable",
+    inputs: [
+      { name: "agent", type: "address" },
+      { name: "expiry", type: "uint64" },
+      { name: "scopeRoot", type: "bytes32" },
+      { name: "modelHash", type: "bytes32" },
+    ],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "delegate",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "parentId", type: "uint256" },
+      { name: "agent", type: "address" },
+      { name: "amount", type: "uint256" },
+      { name: "expiry", type: "uint64" },
+      { name: "scopeRoot", type: "bytes32" },
+      { name: "modelHash", type: "bytes32" },
+    ],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "execute",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "id", type: "uint256" },
+      { name: "instrument", type: "bytes32" },
+      { name: "amount", type: "uint256" },
+      { name: "proofs", type: "bytes32[][]" },
+    ],
+    outputs: [{ name: "", type: "bool" }],
+  },
+  {
+    type: "function",
+    name: "reclaim",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "id", type: "uint256" }],
+    outputs: [],
+  },
+  {
+    type: "function",
+    name: "getMandate",
+    stateMutability: "view",
+    inputs: [{ name: "id", type: "uint256" }],
+    outputs: [
+      { name: "parentId", type: "uint256" },
+      { name: "agent", type: "address" },
+      { name: "remaining", type: "uint256" },
+      { name: "expiry", type: "uint64" },
+      { name: "scopeRoot", type: "bytes32" },
+      { name: "modelHash", type: "bytes32" },
+      { name: "receiptHead", type: "bytes32" },
+      { name: "breaches", type: "uint64" },
+    ],
+  },
+  {
+    type: "function",
+    name: "mandateCount",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    type: "event",
+    name: "MandateCreated",
+    inputs: [
+      { name: "id", type: "uint256", indexed: true },
+      { name: "agent", type: "address", indexed: true },
+      { name: "capacity", type: "uint256", indexed: false },
+      { name: "expiry", type: "uint64", indexed: false },
+      { name: "scopeRoot", type: "bytes32", indexed: false },
+      { name: "modelHash", type: "bytes32", indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "Delegated",
+    inputs: [
+      { name: "parentId", type: "uint256", indexed: true },
+      { name: "childId", type: "uint256", indexed: true },
+      { name: "agent", type: "address", indexed: true },
+      { name: "amount", type: "uint256", indexed: false },
+      { name: "expiry", type: "uint64", indexed: false },
+      { name: "scopeRoot", type: "bytes32", indexed: false },
+      { name: "modelHash", type: "bytes32", indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "Executed",
+    inputs: [
+      { name: "id", type: "uint256", indexed: true },
+      { name: "instrument", type: "bytes32", indexed: true },
+      { name: "amount", type: "uint256", indexed: false },
+      { name: "newHead", type: "bytes32", indexed: false },
+      { name: "timestamp", type: "uint64", indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "Breach",
+    inputs: [
+      { name: "id", type: "uint256", indexed: true },
+      { name: "code", type: "uint8", indexed: false },
+      { name: "instrument", type: "bytes32", indexed: false },
+      { name: "amount", type: "uint256", indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "Reclaimed",
+    inputs: [
+      { name: "id", type: "uint256", indexed: true },
+      { name: "amount", type: "uint256", indexed: false },
+      { name: "to", type: "address", indexed: false },
+    ],
+    anonymous: false,
+  },
+] as const;
