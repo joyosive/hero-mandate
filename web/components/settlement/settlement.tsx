@@ -282,7 +282,7 @@ function SettlementView({ s }: { s: Settlement }) {
             </p>
             <div className="mt-3 flex flex-col gap-2">
               <DataRow label="mandate">
-                #{"3"} · scope PAY-USDC
+                #{s.mandateId} · scope PAY-USDC
               </DataRow>
               <DataRow label="execute tx">
                 <TxLink s={s} hash={s.executeTx} />

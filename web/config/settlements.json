@@ -24,7 +24,8 @@
       "tx": "0xe26b491f72a9c81011d0feda075fdafc2cadf3d12b73220bdc2c5f26fb63d4a9",
       "invalidNonce": true,
       "selector": "0x756688fe"
-    }
+    },
+    "mandateId": 6
   },
   {
     "chainKey": "sepolia",
@@ -51,6 +52,7 @@
       "tx": null,
       "invalidNonce": true,
       "selector": "0x756688fe"
-    }
+    },
+    "mandateId": 3
   }
 ]

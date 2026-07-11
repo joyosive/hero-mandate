@@ -30,6 +30,7 @@ export interface Settlement {
   permit2: string;
   token: SettlementToken;
   vendor: string;
+  mandateId: number;
   executeTx: string; // agent executes under the payments mandate
   receiptHead: string; // receipt head the credential is bound to
   nonce: string; // permit2 nonce, consumed on settle
