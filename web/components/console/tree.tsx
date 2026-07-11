@@ -14,7 +14,7 @@ import {
   type MandateNode,
 } from "@/lib/chain";
 import { CopyText } from "./copy";
-import { fmtCountdown, fmtEth, fmtEth3 } from "./format";
+import { fmtCountdown, fmtEth } from "./format";
 import { useNow } from "./hooks";
 
 function Expiry({ expiry }: { expiry: number }) {
@@ -54,9 +54,12 @@ function CapacityBar({ node }: { node: MandateNode }) {
         className="absolute inset-y-0 left-0 bg-acid/85 transition-[width] duration-[600ms] ease-out"
         style={{ width: `${pct}%` }}
       />
+      {/* Exact values, same bigints as the fill width: the chip must never
+          disagree with the bar (fmtEth3 rounding misstated 0.0004-scale
+          amounts, e.g. 0.0035 as 0.004 beside a 70% fill). */}
       <div className="absolute inset-y-0 right-1.5 flex items-center">
         <span className="rounded-sm bg-bg/80 px-1 font-mono text-[9.5px] leading-none tabular-nums text-white">
-          {fmtEth3(node.remaining)} / {fmtEth3(node.capacity)} ETH
+          {fmtEth(node.remaining)} / {fmtEth(node.capacity)} ETH
         </span>
       </div>
     </div>

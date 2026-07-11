@@ -1,47 +1,55 @@
 "use client";
 
 // Stage capacity bars: the mandate tree flattened into huge horizontal
-// bars, sized to be read from the back of a room. Numerals are
-// clamp(28px,4vw,56px) mono; bars ease to their new width on drain and a
-// drained-amount tick floats up beside the bar. Breaches are stamped as
-// big err badges on the node row.
+// bars, sized to be read from the back of a room. Every bar shares the
+// same left edge and a full-width track; hierarchy is expressed by the
+// "under #N" label only. Numerals are clamp(28px,4vw,56px) mono; bars
+// ease to their new width on drain and a drained-amount tick floats up
+// beside the bar. Breaches are stamped as big err badges on the node row.
 
 import { shortAddress, type MandateNode } from "@/lib/chain";
-import { fmtEth, fmtEth3 } from "@/components/console/format";
+import { fmtEth } from "@/components/console/format";
 
-interface FlatNode {
-  node: MandateNode;
-  depth: number;
-}
-
-function flatten(roots: MandateNode[]): FlatNode[] {
-  const out: FlatNode[] = [];
-  const walk = (n: MandateNode, depth: number) => {
-    out.push({ node: n, depth });
-    n.children.forEach((c) => walk(c, depth + 1));
+// DFS order: each parent directly above its children.
+function flatten(roots: MandateNode[]): MandateNode[] {
+  const out: MandateNode[] = [];
+  const walk = (n: MandateNode) => {
+    out.push(n);
+    n.children.forEach(walk);
   };
-  roots.forEach((r) => walk(r, 0));
+  roots.forEach(walk);
   return out;
 }
 
-function StageBar({
-  node,
-  depth,
-  drain,
-  epoch,
-}: {
-  node: MandateNode;
-  depth: number;
-  drain?: bigint;
-  epoch?: number;
-}) {
+// The one shared computation behind both the numerals and the fill width.
+// Fraction is remaining / capacity on the raw wei bigints (floored to
+// 0.01%); labels are the exact ETH values, never rounded to a fixed number
+// of decimals, so the text can never disagree with the bar.
+function barModel(node: MandateNode) {
   const pct =
     node.capacity > 0n
       ? Math.min(100, Number((node.remaining * 10000n) / node.capacity) / 100)
       : 0;
+  return {
+    pct,
+    remainingLabel: fmtEth(node.remaining),
+    capacityLabel: fmtEth(node.capacity),
+  };
+}
+
+function StageBar({
+  node,
+  drain,
+  epoch,
+}: {
+  node: MandateNode;
+  drain?: bigint;
+  epoch?: number;
+}) {
+  const { pct, remainingLabel, capacityLabel } = barModel(node);
   const isRoot = node.parentId === 0;
   return (
-    <div style={{ paddingLeft: `${Math.min(depth, 3) * 2.5}vw` }}>
+    <div>
       {/* label row */}
       <div className="flex flex-wrap items-baseline gap-x-[1.2vw] gap-y-1">
         <span
@@ -65,8 +73,8 @@ function StageBar({
           className="ml-auto whitespace-nowrap font-mono leading-none tabular-nums text-acid max-sm:basis-full max-sm:text-right"
           style={{ fontSize: "clamp(28px,4vw,56px)" }}
         >
-          {fmtEth3(node.remaining)}
-          <span className="text-dim"> / {fmtEth3(node.capacity)} ETH</span>
+          {remainingLabel}
+          <span className="text-dim"> / {capacityLabel} ETH</span>
         </span>
       </div>
 
@@ -76,9 +84,7 @@ function StageBar({
           className="relative overflow-hidden rounded-md border border-line2 bg-panel"
           style={{ height: "clamp(20px,3.8vh,40px)" }}
           role="img"
-          aria-label={`node ${node.id}: ${fmtEth(node.remaining)} of ${fmtEth(
-            node.capacity
-          )} ETH remaining`}
+          aria-label={`node ${node.id}: ${remainingLabel} of ${capacityLabel} ETH remaining`}
         >
           <div
             className="absolute inset-y-0 left-0 bg-acid/85 transition-[width] duration-[600ms] ease-out"
@@ -121,11 +127,10 @@ export function StageBars({
     // my-auto centers when the tree fits and degrades to top-aligned
     // scrolling (no clipping) when it does not.
     <div className="my-auto flex w-full flex-col gap-[2.2vh]">
-      {flat.map(({ node, depth }) => (
+      {flat.map((node) => (
         <StageBar
           key={node.id}
           node={node}
-          depth={depth}
           drain={drains?.get(node.id)}
           epoch={epoch}
         />
