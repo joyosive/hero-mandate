@@ -1,0 +1,10 @@
+# Netlify build config. File settings override the UI.
+# The site is a static Next.js export: build in web/, publish web/out.
+[build]
+  base = "web"
+  command = "npm run build"
+  # Relative to base, so this is web/out.
+  publish = "out"
+
+[build.environment]
+  NODE_VERSION = "22"
