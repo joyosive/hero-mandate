@@ -5,6 +5,7 @@
   "description": "Deterministic demo runner for the Hero Mandate chain of mandate protocol",
   "scripts": {
     "selftest": "tsx src/selftest.ts",
+    "cockpit": "tsx src/cockpit.ts",
     "typecheck": "tsc --noEmit",
     "run:sepolia": "tsx src/run.ts --chain sepolia",
     "run:robinhood": "tsx src/run.ts --chain robinhood"
