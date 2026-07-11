@@ -15,6 +15,7 @@ crate-type = ["lib", "cdylib"]
 default = ["mini-alloc"]
 export-abi = ["stylus-sdk/export-abi"]
 debug = ["stylus-sdk/debug"]
+stylus-test = ["stylus-sdk/stylus-test"]
 mini-alloc = ["stylus-sdk/mini-alloc"]
 contract-client-gen = []
 
