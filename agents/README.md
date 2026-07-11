@@ -11,7 +11,8 @@ Machine summary lands in `out/run-<chain>.json` for the web fixture.
 
 ## MPP composition
 
-`src/mpp-guard.ts` answers an Arbitrum MPP (Machine Payments Protocol) payment challenge only after the mandate contract accepts the spend via `execute()`, then signs the credential over the new receipt head.
-One line: MPP moves the money, Hero Mandate bounds and proves the authority, and the credential embeds the receipt hash.
-Selftest (no chain, mock contract, MPP side labeled SIM): `npx tsx src/mpp-selftest.ts`
-Live MPP server integration is roadmap: MPP is v0.1.0 in progress, so the minimal challenge/credential shapes are vendored rather than depended on.
+`src/mpp-guard.ts` answers an Arbitrum MPP (Machine Payments Protocol) payment challenge only after the mandate contract accepts the spend via `execute()`.
+The guard emits credentials in `@arbitrum/mpp`'s permit2 wire format, built with the package's own `createChallengeHash` and `buildPermit2TypedData` primitives: the mandate receipt head from the `Executed` event is bound through the challenge hash realm (`hero-mandate/<receiptHead>`), so a payment credential cannot exist without on-chain authority.
+One line: MPP moves the money, Hero Mandate bounds and proves the authority, and MPP's own challenge hash embeds the receipt head.
+Selftest (no chain, mock contract, challenge side labeled SIM): `npx tsx src/mpp-selftest.ts`
+Full Charge server round trip is roadmap.

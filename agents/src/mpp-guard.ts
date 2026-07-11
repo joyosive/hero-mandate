@@ -1,16 +1,22 @@
 // Composition: Arbitrum MPP (Machine Payments Protocol) moves the money,
-// Hero Mandate bounds and proves the authority. A payee issues an MPP-style
+// Hero Mandate bounds and proves the authority. A payee issues an MPP
 // challenge; this guard answers it only after the mandate contract accepts
 // the spend via execute(), which decrements escrowed capacity and extends
-// the receipt hash chain. The credential is signed over the new receipt
-// head, so a payment credential cannot exist without on-chain authority.
+// the receipt hash chain. The credential is @arbitrum/mpp's permit2 wire
+// format, and the new receipt head is folded into the package's own
+// challenge hash through the realm string, so a payment credential cannot
+// exist without on-chain authority.
 
-import { Contract, Wallet, getBytes, keccak256, solidityPacked, toUtf8Bytes, verifyMessage } from "ethers";
+import { Contract, TypedDataField, Wallet, keccak256, toUtf8Bytes, verifyTypedData } from "ethers";
+// @arbitrum/mpp v0.1.0 does not list its utils module in the package exports
+// map (only ".", "./client", "./server" and "./default" are exported), so we
+// import the built file directly. This is the package's own code and types,
+// not a vendored copy.
+import { buildPermit2TypedData, createChallengeHash } from "../node_modules/@arbitrum/mpp/dist/utils.js";
+import type { Permit2Payload } from "../node_modules/@arbitrum/mpp/dist/default.js";
 import { buildProof, instrumentId } from "./merkle";
 
-// ---------------------------------------------------------------- vendored MPP shapes
-// Minimal challenge/credential pattern vendored from arbitrum-mpp v0.1.0.
-// The project is in progress, so we do not depend on it or call its server.
+// ---------------------------------------------------------------- MPP wire shapes
 
 export interface MppChallenge {
   id: string;
@@ -20,14 +26,14 @@ export interface MppChallenge {
   memo: string;
 }
 
-export interface MppCredential {
+/**
+ * @arbitrum/mpp permit2 wire credential, extended with the challenge id and
+ * the mandate receipt head it is bound to. The receipt head reaches the
+ * signature through createChallengeHash: it is the realm of the witness.
+ */
+export interface MandateBoundCredential extends Permit2Payload {
+  type: "permit2";
   challengeId: string;
-  payer: string;
-  signature: string;
-}
-
-/** MPP credential extended with the mandate receipt head it is bound to. */
-export interface MandateBoundCredential extends MppCredential {
   receiptHead: string;
 }
 
@@ -37,23 +43,53 @@ export type AuthorizeResult =
 
 const BREACH_NAMES: Record<number, string> = { 1: "expiry", 2: "capacity", 3: "scope", 4: "caller" };
 
+// SIM: demo token address, "usd" in ASCII. No real USDC is assumed on the
+// testnets this project runs against; the permit2 payload is never settled.
+export const DEMO_USDC = "0x0000000000000000000000000000000000757364";
+
+// SIM: chain id used when the contract has no provider (the mock selftest
+// contract). Arbitrum Sepolia, matching @arbitrum/mpp's supported chains.
+export const SIM_CHAIN_ID = 421614;
+
 // ---------------------------------------------------------------- credential binding
 
-/** Digest the credential signature covers: challenge id, payer, amount, receipt head. */
-export function credentialDigest(challengeId: string, payer: string, amount: bigint, receiptHead: string): string {
-  return keccak256(
-    solidityPacked(
-      ["bytes32", "address", "uint256", "bytes32"],
-      [keccak256(toUtf8Bytes(challengeId)), payer, amount, receiptHead],
-    ),
-  );
+/** Realm string binding a challenge hash to a mandate receipt head. */
+export function mandateRealm(receiptHead: string): string {
+  return `hero-mandate/${receiptHead}`;
 }
 
-/** Anyone can verify: recover the signer over the bound digest and compare. */
-export function verifyCredential(credential: MandateBoundCredential, amount: bigint, expectedAgent: string): boolean {
-  const digest = credentialDigest(credential.challengeId, credential.payer, amount, credential.receiptHead);
+/**
+ * buildPermit2TypedData returns readonly type tuples; ethers wants mutable
+ * TypedDataField arrays. No EIP712Domain entry is present in the builder's
+ * types, so nothing needs stripping before signing.
+ */
+export function toEthersTypes(typed: ReturnType<typeof buildPermit2TypedData>): Record<string, TypedDataField[]> {
+  return typed.types as unknown as Record<string, TypedDataField[]>;
+}
+
+/**
+ * Anyone can verify: recompute the challenge hash from the credential's own
+ * transfer details under the receipt head realm, check it matches the signed
+ * witness, then recover the permit2 typed data signer and compare.
+ */
+export function verifyCredential(credential: MandateBoundCredential, expectedAgent: string, chainId: number): boolean {
   try {
-    return verifyMessage(getBytes(digest), credential.signature).toLowerCase() === expectedAgent.toLowerCase();
+    const expectedHash = createChallengeHash({
+      id: credential.challengeId,
+      realm: mandateRealm(credential.receiptHead),
+      transferDetails: credential.transferDetails,
+    });
+    if (expectedHash !== credential.witness.challengeHash) return false;
+    const typed = buildPermit2TypedData({
+      chainId,
+      permitted: credential.permit.permitted,
+      recipient: credential.transferDetails[0].to as `0x${string}`,
+      nonce: BigInt(credential.permit.nonce),
+      deadline: BigInt(credential.permit.deadline),
+      Witness: { challengeHash: expectedHash },
+    });
+    const signer = verifyTypedData(typed.domain, toEthersTypes(typed), typed.message, credential.signature);
+    return signer.toLowerCase() === expectedAgent.toLowerCase();
   } catch {
     return false;
   }
@@ -83,6 +119,12 @@ export class MandateGuard {
       }
     };
     return [proofFor(this.scopeSet), ...this.ancestorSets.map(proofFor)];
+  }
+
+  private async chainId(): Promise<number> {
+    const provider = this.contract.runner?.provider;
+    if (provider) return Number((await provider.getNetwork()).chainId);
+    return SIM_CHAIN_ID; // SIM: mock contract, no provider attached
   }
 
   private log(msg: string): void {
@@ -130,17 +172,44 @@ export class MandateGuard {
       }
       if (!parsed) continue;
 
-      // 3. Executed: the mandate allowed the spend. Sign the credential over
-      // the new receipt head so payment and authority stay one object.
+      // 3. Executed: the mandate allowed the spend. Fold the new receipt head
+      // into MPP's challenge hash via the realm, then sign the permit2 typed
+      // data, so payment and authority stay one object.
       if (parsed.name === "Executed" && BigInt(parsed.args.id) === this.mandateId) {
         const receiptHead = String(parsed.args.newHead);
-        const digest = credentialDigest(challenge.id, this.agentWallet.address, challenge.amount, receiptHead);
-        const signature = await this.agentWallet.signMessage(getBytes(digest));
+        const chainId = await this.chainId();
+        const transferDetails = [{ to: challenge.payTo, requestedAmount: challenge.amount.toString() }];
+        const challengeHash = createChallengeHash({
+          id: challenge.id,
+          realm: mandateRealm(receiptHead),
+          transferDetails,
+        });
+        const permitted = [{ token: DEMO_USDC, amount: challenge.amount.toString() }];
+        // Permit2 nonces are unordered uint256 values; derive one from the challenge id.
+        const nonce = BigInt(keccak256(toUtf8Bytes(challenge.id)));
+        const deadline = now + 3600n;
+        const typed = buildPermit2TypedData({
+          chainId,
+          permitted,
+          recipient: challenge.payTo as `0x${string}`,
+          nonce,
+          deadline,
+          Witness: { challengeHash },
+        });
+        const signature = await this.agentWallet.signTypedData(typed.domain, toEthersTypes(typed), typed.message);
         this.log(`executed on-chain, receipt head ${receiptHead}`);
-        this.log(`SIM MPP credential signed by ${this.agentWallet.address}, bound to receipt head`);
+        this.log(`SIM MPP permit2 credential signed by ${this.agentWallet.address}, receipt head bound via challenge hash realm`);
         return {
           ok: true,
-          credential: { challengeId: challenge.id, payer: this.agentWallet.address, signature, receiptHead },
+          credential: {
+            type: "permit2",
+            permit: { permitted, nonce: nonce.toString(), deadline: deadline.toString() },
+            transferDetails,
+            witness: { challengeHash },
+            signature,
+            challengeId: challenge.id,
+            receiptHead,
+          },
           receiptHead,
           txHash: String(tx.hash),
         };
