@@ -61,6 +61,12 @@ function HeaderInner() {
               </Link>
             );
           })}
+          <a
+            href="/log.html"
+            className="rounded-md px-3 py-1.5 font-mono text-[11px] uppercase tracking-[1.2px] text-muted no-underline transition-colors hover:text-white hover:no-underline"
+          >
+            Log
+          </a>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -106,6 +112,9 @@ function HeaderInner() {
             </Link>
           );
         })}
+        <a href="/log.html" className="whitespace-nowrap rounded-md px-3 py-1 font-mono text-[10.5px] uppercase tracking-[1px] text-muted no-underline">
+          Log
+        </a>
       </nav>
     </header>
   );
