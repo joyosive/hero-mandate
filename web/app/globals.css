@@ -3,16 +3,21 @@
 @theme {
   --color-bg: #0a0b09;
   --color-panel: #101209;
+  --color-panel2: #0e100c;
   --color-acid: #aaff00;
   --color-white: #eceee6;
   --color-muted: #7a7e72;
   --color-dim: #4c4f47;
   --color-err: #ff5470;
   --color-cyan: #22d3ee;
+  --color-amber: #ffb020;
+  --color-line: rgba(170, 255, 0, 0.16);
+  --color-line2: rgba(170, 255, 0, 0.08);
 }
 
 @theme inline {
   --font-display: var(--font-space-grotesk), "Space Grotesk", sans-serif;
+  --font-disp: var(--font-space-grotesk), "Space Grotesk", sans-serif;
   --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
   --font-body: var(--font-inter), "Inter", sans-serif;
 }

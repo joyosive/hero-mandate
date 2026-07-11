@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Header, Footer } from "@/components/shell";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -18,9 +19,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Hero Mandate: Chain of Mandate console",
+  title: "Hero Mandate · Proof of action for trading agents",
   description:
-    "Delegated authority for autonomous trading agents that provably narrows at every level, enforced by construction.",
+    "Authority for AI trading agents as an on-chain object: escrowed, scoped, delegable downward, provably narrower at every level. Live on Robinhood Chain and Arbitrum Sepolia.",
 };
 
 export default function RootLayout({
@@ -31,7 +32,13 @@ export default function RootLayout({
       lang="en"
       className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${inter.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <div className="flex min-h-dvh flex-col">
+          <Header />
+          <div className="flex-1">{children}</div>
+          <Footer />
+        </div>
+      </body>
     </html>
   );
 }
