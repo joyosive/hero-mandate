@@ -77,6 +77,23 @@ function hr(): void {
   console.log("-".repeat(78));
 }
 
+// Presenter mode: with --step, each beat waits for Enter so the narration
+// controls the pace and the console updates land on cue.
+const STEP_MODE = process.argv.includes("--step");
+
+async function stepGate(beat: string): Promise<void> {
+  if (!STEP_MODE) return;
+  process.stdout.write(`\n>> ${beat}  [Enter]`);
+  await new Promise<void>((resolve) => {
+    process.stdin.resume();
+    process.stdin.once("data", () => {
+      process.stdin.pause();
+      resolve();
+    });
+  });
+  console.log("");
+}
+
 function short(hex: string): string {
   return hex.length > 18 ? `${hex.slice(0, 10)}..${hex.slice(-6)}` : hex;
 }
@@ -324,6 +341,7 @@ async function main(): Promise<void> {
   const rootScopeRoot = buildRoot(ROOT_SET);
   const childScopeRoot = buildRoot(CHILD_SET);
 
+  await stepGate("beat 1: create the root mandate");
   // Beat 1: treasury opens the root mandate for the orchestrator.
   log("NODE 1", "treasury opens the root mandate for the orchestrator");
   const createTx = await asTreasury.getFunction("createMandate")(
@@ -350,6 +368,7 @@ async function main(): Promise<void> {
   log("NODE 1", `tx ${link(createTx.hash)}`);
   hr();
 
+  await stepGate("beat 2: delegate to the momentum sub-agent");
   // Beat 2: orchestrator carves a momentum sub-mandate out of node 1.
   log("NODE 2", "orchestrator carves a momentum sub-mandate out of node 1");
   const delegateTx = await asOrchestrator.getFunction("delegate")(
@@ -378,6 +397,7 @@ async function main(): Promise<void> {
   log("NODE 2", `tx ${link(delegateTx.hash)}`);
   hr();
 
+  await stepGate("beat 3: two in-mandate trades");
   // Beat 3: momentum executes two in-scope trades. Proofs prove the child's
   // own instrument against its root AND against the parent's root, so the
   // whole lineage authorizes every trade.
@@ -421,6 +441,7 @@ async function main(): Promise<void> {
   const breaches: Array<Record<string, unknown>> = [];
   const parentBefore = await readMandate(asTreasury, rootId);
 
+  await stepGate("beat 4: scope breach attempt");
   // Beat 4: BTC-USD sits inside the ROOT scope but not inside the child's.
   // The child cannot borrow authority its own node was never granted.
   log("ATTEMPT", `momentum tries BTC-USD for ${eth(BREACH_SCOPE_AMOUNT)}`);
@@ -456,6 +477,7 @@ async function main(): Promise<void> {
   }
   hr();
 
+  await stepGate("beat 5: capacity breach attempt");
   // Beat 5: an over-capacity trade. In scope, but the escrow says no.
   log("ATTEMPT", `momentum tries ETH-USD for ${eth(BREACH_CAP_AMOUNT)}, above its remaining capacity`);
   const capOutcome = await attemptExecute(asMomentum, address, childId, "ETH-USD", BREACH_CAP_AMOUNT, [
@@ -482,6 +504,7 @@ async function main(): Promise<void> {
   summary.breaches = breaches;
   hr();
 
+  await stepGate("beat 6: verify receipt chains");
   // Beat 6: read both nodes back and recompute the receipt chains from events.
   const rootView = await readMandate(asTreasury, rootId);
   const childView = await readMandate(asTreasury, childId);
