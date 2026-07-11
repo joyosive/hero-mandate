@@ -8,3 +8,14 @@ Same WASM binary, same address, two Orbit chains.
 | Arbitrum Sepolia | 421614 | [0x0dfca3eabfde4e4714057a326058611e040dcdd9](https://sepolia.arbiscan.io/address/0x0dfca3eabfde4e4714057a326058611e040dcdd9) | [0x899090f6](https://sepolia.arbiscan.io/tx/0x899090f64b4608856cac9bb92250394e669145225ee4b9c2e80f7ba07b3c525f) | 0x42aaf1b067719ac03b5ddeabd31ed3a164613901f1c3e40d03d1834fa6663ed2 |
 
 Live scenario runs (six beats, receipts and breaches on chain): agents/out/run-robinhood.json and agents/out/run-sepolia.json.
+
+## Cross-primitive anchor
+
+The momentum sub-agent's receipt head from the live Robinhood Chain run,
+0x6c642c9fd8684ec9bbef7cdea6ffafb51cff0fc3bb13eb25ea6b2c65d0dbeca6, is
+anchored in the verified HeroProofAnchor contract on Arbitrum Sepolia
+(0xb3fa3222130fac54b90e37835dce4f052349571b), the same contract that anchors
+the Hero robot-fleet proofs. One engine, two industries, provable on chain.
+
+Anchor tx: https://sepolia.arbiscan.io/tx/0x3accefec0cd84166458cec60f4580febd49e305a099ac3e595dc6cd52ccac217
+Check it: call verify(0x6c64...beca6) on the anchor contract, returns true.
