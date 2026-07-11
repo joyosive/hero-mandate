@@ -1,0 +1,56 @@
+[
+  {
+    "chainKey": "robinhood",
+    "network": "Robinhood Chain testnet",
+    "chainId": 46630,
+    "mandateContract": "0x0dfca3eabfde4e4714057a326058611e040dcdd9",
+    "permit2": "0x000000000022d473030f116ddee9f6b43ac78ba3",
+    "token": {
+      "symbol": "hUSD",
+      "real": false,
+      "label": "demo stablecoin",
+      "address": "0x2674b18953149ad38a222DF82D37d220E380186D",
+      "decimals": 6
+    },
+    "vendor": "0xda8E00A35bFa6285A4CE9e6B72D1792199b62255",
+    "executeTx": "0x49367a5233ba98231c0ba4579bec41dffb572c452a465c834e9637fe1e95acec",
+    "receiptHead": "0x8598a07e5daecd1a35134cfb978665d1c3e32a8fc4140a2fea4fa87146d98af0",
+    "nonce": "1783787900402",
+    "amount": "5000000",
+    "settleTx": "0xa1da3dff48d85dfc858da5dc41f2a824c58f6bbc5f8d890afae085ec685c8d36",
+    "vendorBefore": "0",
+    "vendorAfter": "5000000",
+    "replay": {
+      "tx": "0xe26b491f72a9c81011d0feda075fdafc2cadf3d12b73220bdc2c5f26fb63d4a9",
+      "invalidNonce": true,
+      "selector": "0x756688fe"
+    }
+  },
+  {
+    "chainKey": "sepolia",
+    "network": "Arbitrum Sepolia",
+    "chainId": 421614,
+    "mandateContract": "0x0dfca3eabfde4e4714057a326058611e040dcdd9",
+    "permit2": "0x000000000022d473030f116ddee9f6b43ac78ba3",
+    "token": {
+      "symbol": "USDC",
+      "real": true,
+      "label": "Circle USDC",
+      "address": "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
+      "decimals": 6
+    },
+    "vendor": "0xda8E00A35bFa6285A4CE9e6B72D1792199b62255",
+    "executeTx": "0x06ff8a7193c52648857904a889d4fbdfae0397e3870307409dce5fa26dfc4b2f",
+    "receiptHead": "0x5b690aab84357af70ff551ebb9686c2424260c7af3bf87e619ebb7934c45b200",
+    "nonce": "1783778102304",
+    "amount": "5000000",
+    "settleTx": "0x7024269a986ae30c366d7df7c5df81fd0c621dd6e33655ee04a48125db4dfdb5",
+    "vendorBefore": "10000000",
+    "vendorAfter": "15000000",
+    "replay": {
+      "tx": null,
+      "invalidNonce": true,
+      "selector": "0x756688fe"
+    }
+  }
+]

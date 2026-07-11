@@ -27,6 +27,7 @@ export function useChain(): ChainKey {
 const NAV = [
   { href: "/", label: "Overview" },
   { href: "/console", label: "Console" },
+  { href: "/settlement", label: "Settlement" },
   { href: "/agents", label: "Agents" },
   { href: "/how", label: "How it works" },
 ] as const;

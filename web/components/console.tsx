@@ -190,6 +190,12 @@ function ConsoleInner() {
         </span>
         <div className="ml-auto flex items-center gap-3">
           <Link
+            href={`/settlement?chain=${siteKey}`}
+            className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted underline decoration-dim underline-offset-2 transition-colors hover:text-acid hover:decoration-acid focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-acid"
+          >
+            Settlement
+          </Link>
+          <Link
             href={`/stage?chain=${siteKey}`}
             className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted underline decoration-dim underline-offset-2 transition-colors hover:text-acid hover:decoration-acid focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-acid"
           >
