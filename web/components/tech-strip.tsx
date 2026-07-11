@@ -1,26 +1,22 @@
 // Per-page tech attribution strip. A compact, muted horizontal row that
 // names the real pieces powering a given page (each chip: a piece and its
-// honest role), plus one dual-network line stating that the SAME authority
-// contract runs on BOTH chains, each chain name linking to its explorer
-// address page. No hooks: pure render over the shared CHAINS/CONTRACT
-// constants, so it stays a plain component even inside client pages.
+// honest role), plus one line naming the authority contract on Robinhood
+// Chain, linking to its explorer address page. No hooks: pure render over
+// the shared CHAINS/CONTRACT constants, so it stays a plain component even
+// inside client pages.
 
 import { CHAINS, CONTRACT } from "@/components/shell";
 
 export type TechChip =
   | "heromandate"
   | "permit2"
-  | "mpp"
-  | "fhenix"
-  | "anchor";
+  | "mpp";
 
 // Exact, honest chip copy. Each string names a real piece and its role.
 const CHIP_TEXT: Record<TechChip, string> = {
-  heromandate: "HeroMandate · Stylus authority contract · both chains",
-  permit2: "Uniswap Permit2 · moves the tokens · both chains",
+  heromandate: "HeroMandate · Stylus authority contract · on Robinhood Chain",
+  permit2: "Uniswap Permit2 · moves the tokens · on Robinhood Chain",
   mpp: "Arbitrum MPP · builds the payment credential",
-  fhenix: "Fhenix CoFHE · encrypted authority · Arbitrum Sepolia only",
-  anchor: "HeroProofAnchor · cross-chain anchor · Arbitrum Sepolia",
 };
 
 const LINK =
@@ -66,8 +62,8 @@ export default function TechStrip({
       </div>
 
       <p className="font-mono text-[10.5px] leading-relaxed text-dim">
-        same contract{" "}
-        <span className="break-all text-muted">{CONTRACT}</span> on both chains:{" "}
+        contract{" "}
+        <span className="break-all text-muted">{CONTRACT}</span> on{" "}
         <a
           href={`${CHAINS.robinhood.explorer}/address/${CONTRACT}`}
           target="_blank"
@@ -76,16 +72,6 @@ export default function TechStrip({
           className={LINK}
         >
           {CHAINS.robinhood.label}
-        </a>
-        <span className="text-dim"> · </span>
-        <a
-          href={`${CHAINS.sepolia.explorer}/address/${CONTRACT}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          title={`Contract on ${CHAINS.sepolia.label}`}
-          className={LINK}
-        >
-          {CHAINS.sepolia.label}
         </a>
       </p>
     </div>

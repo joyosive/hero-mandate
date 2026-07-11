@@ -21,7 +21,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Hero Mandate · Proof of action for trading agents",
   description:
-    "Authority for AI trading agents as an on-chain object: escrowed, scoped, delegable downward, provably narrower at every level. Live on Robinhood Chain and Arbitrum Sepolia.",
+    "Authority for AI trading agents as an on-chain object: escrowed, scoped, delegable downward, provably narrower at every level. Live on Robinhood Chain.",
 };
 
 export default function RootLayout({

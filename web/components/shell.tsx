@@ -1,12 +1,12 @@
 "use client";
 
-// App shell: one sticky header, one footer, chain selection carried in the
-// URL (?chain=robinhood|sepolia) so every page shares it statelessly.
-// Pages render inside; the shell owns navigation and chain context only.
+// App shell: one sticky header, one footer. The whole product runs on
+// Robinhood Chain, so every page reads the same chain with no switching.
+// Pages render inside; the shell owns navigation only.
 
 import { Suspense, type ReactNode } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export const CHAINS = {
   robinhood: { key: "robinhood", chainId: "46630", label: "Robinhood Chain", explorer: "https://explorer.testnet.chain.robinhood.com" },
@@ -19,9 +19,7 @@ export const CONTRACT = "0x0dfca3eabfde4e4714057a326058611e040dcdd9";
 export const REPO_URL = "https://github.com/joyosive/hero-mandate";
 
 export function useChain(): ChainKey {
-  const params = useSearchParams();
-  const c = params.get("chain");
-  return c === "sepolia" ? "sepolia" : "robinhood";
+  return "robinhood";
 }
 
 const NAV = [
@@ -73,23 +71,8 @@ function HeaderInner() {
         </nav>
 
         <div className="flex items-center gap-2">
-          {/* chain segmented control */}
-          <div className="flex rounded-lg border border-line p-[3px]" role="group" aria-label="Chain">
-            {(Object.keys(CHAINS) as ChainKey[]).map((key) => (
-              <Link
-                key={key}
-                href={`${pathname}?chain=${key}`}
-                aria-current={chain === key ? "true" : undefined}
-                className={`rounded-md px-2.5 py-1 font-mono text-[10px] uppercase tracking-[1px] no-underline transition-colors hover:no-underline ${
-                  chain === key ? "bg-acid font-semibold text-[#0A0B09]" : "text-muted hover:text-white"
-                }`}
-              >
-                {key === "robinhood" ? "Robinhood" : "Sepolia"}
-              </Link>
-            ))}
-          </div>
           <a
-            href={`${CHAINS[chain].explorer}/address/${CONTRACT}`}
+            href={`${CHAINS.robinhood.explorer}/address/${CONTRACT}`}
             target="_blank"
             rel="noopener noreferrer"
             className="hidden items-center gap-2 rounded-lg border border-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-[1px] text-acid no-underline transition-colors hover:border-acid hover:no-underline lg:flex"
@@ -146,7 +129,6 @@ export function Footer() {
         </div>
         <div className="flex flex-wrap items-center gap-4 font-mono text-[11px] text-muted">
           <a href={`${CHAINS.robinhood.explorer}/address/${CONTRACT}`} target="_blank" rel="noopener noreferrer">Robinhood Chain</a>
-          <a href={`${CHAINS.sepolia.explorer}/address/${CONTRACT}`} target="_blank" rel="noopener noreferrer">Arbitrum Sepolia</a>
           <a href={REPO_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
           <Link href="/log" className="text-dim hover:text-acid">Log an action</Link>
           <span className="text-dim">testnet · no token · tamper evident</span>

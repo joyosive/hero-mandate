@@ -11,12 +11,11 @@ const FOCUS =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acid";
 
 export default function Hero({ chain }: { chain: ChainKey }) {
-  const other: ChainKey = chain === "robinhood" ? "sepolia" : "robinhood";
   return (
     <section className="mx-auto max-w-[1280px] px-4 pb-12 pt-14 md:px-6 md:pb-16 md:pt-24">
       <p className="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.22em] text-acid">
         <span className="live-dot" aria-hidden="true" />
-        Live on Robinhood Chain + Arbitrum Sepolia
+        Live on Robinhood Chain
       </p>
 
       <h1 className="mt-6 max-w-[920px] font-display text-[clamp(2.5rem,7vw,4.9rem)] font-bold leading-[1.02] tracking-tight text-white">
@@ -50,12 +49,12 @@ export default function Hero({ chain }: { chain: ChainKey }) {
         </a>
         <a
           className={`pill pill-btn no-underline ${FOCUS}`}
-          href={`${CHAINS[other].explorer}/address/${CONTRACT}`}
+          href={`${CHAINS.robinhood.explorer}/address/${CONTRACT}`}
           target="_blank"
           rel="noreferrer"
-          title={`Same address on ${CHAINS[other].label}`}
+          title={`Contract on ${CHAINS.robinhood.label}`}
         >
-          same WASM, two chains
+          Live on Robinhood Chain
         </a>
       </div>
 

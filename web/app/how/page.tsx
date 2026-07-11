@@ -163,13 +163,12 @@ export default function HowPage() {
         </Step>
         <Connector />
 
-        <Step n="04" name="Anchor" title="Extending the existing proof line">
+        <Step n="04" name="Anchor" title="Extending the proof line">
           <p>
-            Receipt heads and scope roots can additionally anchor into the
-            already-deployed and verified HeroAnchor contract on Arbitrum
-            Sepolia, extending the existing Hero proof-of-action deployment
-            rather than replacing it. The same WASM binary runs on Robinhood
-            Chain testnet and Arbitrum Sepolia.
+            Receipt heads and scope roots can additionally anchor into a
+            verified Hero proof-of-action contract, extending the existing
+            proof line rather than replacing it. Anchoring is on the roadmap
+            for Robinhood Chain, where the same WASM binary runs today.
           </p>
         </Step>
         <Connector />

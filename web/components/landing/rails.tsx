@@ -11,8 +11,8 @@ const RAILS = [
   {
     name: "Arbitrum",
     body: "The engine. The mandate contract is Rust compiled to WASM on Stylus, deployed from one binary.",
-    href: `${CHAINS.sepolia.explorer}/address/${CONTRACT}`,
-    link: "contract on Arbiscan",
+    href: `${CHAINS.robinhood.explorer}/address/${CONTRACT}`,
+    link: "contract on Robinhood explorer",
     roadmap: false,
   },
   {
@@ -24,10 +24,10 @@ const RAILS = [
   },
   {
     name: "Fhenix",
-    body: "The seal. Encrypted authority runs LIVE on Arbitrum Sepolia: grant enc(500), act enc(40), homomorphic subtraction on the coprocessor, decrypted readback 460. Robinhood Chain pending coprocessor.",
-    href: "https://sepolia.arbiscan.io/tx/0x3833fbdf5b1ee20813bc8ab9afc9e801026b5b3a356e04ed204239b2eac00d1d",
-    link: "the encrypted act tx on Arbiscan",
-    roadmap: false,
+    body: "The seal. Encrypted authority: grant enc(500), act enc(40), homomorphic subtraction on a coprocessor, decrypted readback 460. On the roadmap for Robinhood Chain.",
+    href: null,
+    link: null,
+    roadmap: true,
   },
   {
     name: "MPP + Permit2",
@@ -57,14 +57,16 @@ export default function Rails() {
             <p className="flex-1 text-sm leading-relaxed text-muted">
               {rail.body}
             </p>
-            <a
-              className={`font-mono text-[11px] text-white underline decoration-dim underline-offset-4 hover:decoration-acid ${FOCUS}`}
-              href={rail.href}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {rail.link}
-            </a>
+            {rail.href && rail.link && (
+              <a
+                className={`font-mono text-[11px] text-white underline decoration-dim underline-offset-4 hover:decoration-acid ${FOCUS}`}
+                href={rail.href}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {rail.link}
+              </a>
+            )}
           </div>
         ))}
       </div>

@@ -26,33 +26,5 @@
       "selector": "0x756688fe"
     },
     "mandateId": 6
-  },
-  {
-    "chainKey": "sepolia",
-    "network": "Arbitrum Sepolia",
-    "chainId": 421614,
-    "mandateContract": "0x0dfca3eabfde4e4714057a326058611e040dcdd9",
-    "permit2": "0x000000000022d473030f116ddee9f6b43ac78ba3",
-    "token": {
-      "symbol": "USDC",
-      "real": true,
-      "label": "Circle USDC",
-      "address": "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
-      "decimals": 6
-    },
-    "vendor": "0xda8E00A35bFa6285A4CE9e6B72D1792199b62255",
-    "executeTx": "0x06ff8a7193c52648857904a889d4fbdfae0397e3870307409dce5fa26dfc4b2f",
-    "receiptHead": "0x5b690aab84357af70ff551ebb9686c2424260c7af3bf87e619ebb7934c45b200",
-    "nonce": "1783778102304",
-    "amount": "5000000",
-    "settleTx": "0x7024269a986ae30c366d7df7c5df81fd0c621dd6e33655ee04a48125db4dfdb5",
-    "vendorBefore": "10000000",
-    "vendorAfter": "15000000",
-    "replay": {
-      "tx": null,
-      "invalidNonce": true,
-      "selector": "0x756688fe"
-    },
-    "mandateId": 3
   }
 ]

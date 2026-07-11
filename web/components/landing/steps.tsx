@@ -22,7 +22,7 @@ const STEPS = [
   },
   {
     key: "ANCHOR",
-    line: "Heads and roots anchor into the verified HeroAnchor contract on Arbitrum Sepolia.",
+    line: "Heads and roots can anchor into a verified Hero proof contract. On the roadmap for Robinhood Chain.",
   },
   {
     key: "VERIFY",
