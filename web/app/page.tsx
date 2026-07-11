@@ -1,15 +1,14 @@
-// Landing: story plus live proof. Under construction in this build pass;
-// the console remains fully available at /console.
-import Link from "next/link";
+// Landing: the thesis, the authority waterfall, live ops, the four rails.
+// All client work lives in components/landing; this page only mounts it
+// behind Suspense because the shell's chain selection rides useSearchParams.
+
+import { Suspense } from "react";
+import Landing from "@/components/landing/landing";
 
 export default function Page() {
   return (
-    <main className="mx-auto max-w-[1280px] px-4 py-16 md:px-6">
-      <h1 className="font-display text-3xl font-bold text-white">The breach is provable. <span className="text-acid">The mandate stays sealed.</span></h1>
-      <p className="mt-4 max-w-[620px] text-[15px] leading-relaxed text-muted">
-        Authority for AI trading agents: escrowed, scoped, delegable, receipted.
-      </p>
-      <Link href="/console" className="btn mt-8 inline-flex">Open the console</Link>
-    </main>
+    <Suspense fallback={<main className="min-h-dvh" />}>
+      <Landing />
+    </Suspense>
   );
 }
