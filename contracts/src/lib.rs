@@ -641,6 +641,277 @@ mod test {
             .is_err());
     }
 
+    // ---------------------------------------------------------------- audit
+    // The tests below were added by a hostile audit pass. They probe the
+    // attack surface: narrowing under interleaving, spent-escrow accounting,
+    // merkle forgery, expiry boundaries, and the receipt chain. Test-only,
+    // never compiled into the deployed WASM.
+
+    /// AUDIT 1: multiple children can never sum over the parent's remaining,
+    /// and a spend before delegation tightens the budget further. Narrowing
+    /// holds under every interleaving of delegate/execute.
+    #[test]
+    fn audit_narrowing_holds_across_children_and_spend() {
+        let vm = TestVM::default();
+        let mut c = HeroMandate::from(&vm);
+        let (eth, arb, btc) = instruments();
+        let (root, root_proof_eth) = tree(&[eth, arb, btc], eth);
+        let (child_root, _) = tree(&[eth, arb], eth);
+
+        let orch = Address::from([1u8; 20]);
+        let sub = Address::from([2u8; 20]);
+        vm.set_value(U256::from(500));
+        let root_id = c
+            .create_mandate(orch, vm.block_timestamp() + DAY, root, b32("m1"))
+            .unwrap();
+        vm.set_value(U256::ZERO);
+        vm.set_sender(orch);
+
+        // Root agent spends 100 of its own authority first (in-scope ETH).
+        let ok = c
+            .execute(root_id, eth, U256::from(100), vec![root_proof_eth.clone()])
+            .unwrap();
+        assert!(ok);
+        // remaining is now 400.
+        let (_, _, rem, ..) = c.get_mandate(root_id).unwrap();
+        assert_eq!(rem, U256::from(400));
+
+        // Delegate 300 -> remaining 100.
+        c.delegate(root_id, sub, U256::from(300), vm.block_timestamp() + DAY / 2, child_root, b32("d1"))
+            .unwrap();
+        // Second child asking 200 must fail: only 100 remains.
+        assert!(c
+            .delegate(root_id, sub, U256::from(200), vm.block_timestamp() + DAY / 2, child_root, b32("d2"))
+            .is_err());
+        // Exactly 100 is allowed, draining remaining to zero.
+        c.delegate(root_id, sub, U256::from(100), vm.block_timestamp() + DAY / 2, child_root, b32("d3"))
+            .unwrap();
+        // Any further delegation (even 1 wei) fails.
+        assert!(c
+            .delegate(root_id, sub, U256::from(1), vm.block_timestamp() + DAY / 2, child_root, b32("d4"))
+            .is_err());
+
+        // Sum of children capacities (300+100=400) + parent remaining (0) +
+        // parent spent (100) == original grant (500). Nothing was conjured.
+        let (_, _, parent_rem, ..) = c.get_mandate(root_id).unwrap();
+        assert_eq!(parent_rem, U256::ZERO);
+        assert_eq!(c.capacity_of(U256::from(2)).unwrap(), U256::from(300));
+        assert_eq!(c.capacity_of(U256::from(3)).unwrap(), U256::from(100));
+    }
+
+    /// AUDIT 4 (MEDIUM): escrow ETH backing an executed amount is never paid
+    /// to anyone and is not reclaimable. Only `remaining` returns to the
+    /// funder; the executed slice (40 of 500) is stranded in the contract
+    /// forever, with no admin or sweep path in the surface.
+    #[test]
+    fn audit_spent_escrow_is_permanently_stranded() {
+        let vm = TestVM::default();
+        let mut c = HeroMandate::from(&vm);
+        let (eth, arb, btc) = instruments();
+        let (root, root_proof_eth) = tree(&[eth, arb, btc], eth);
+
+        let funder = vm.msg_sender();
+        let orch = Address::from([1u8; 20]);
+        vm.set_value(U256::from(500));
+        let id = c
+            .create_mandate(orch, vm.block_timestamp() + DAY, root, b32("m1"))
+            .unwrap();
+        vm.set_value(U256::ZERO);
+
+        // Agent executes 40 authority units. No ETH leaves the contract here;
+        // execute() calls transfer_eth nowhere. remaining drops 500 -> 460.
+        vm.set_sender(orch);
+        assert!(c.execute(id, eth, U256::from(40), vec![root_proof_eth]).unwrap());
+        let (_, _, rem, ..) = c.get_mandate(id).unwrap();
+        assert_eq!(rem, U256::from(460));
+
+        // After expiry the funder reclaims. The maximum recoverable is the
+        // remaining 460, NOT the original 500. The 40 has no exit.
+        vm.set_block_timestamp(vm.block_timestamp() + DAY + 1);
+        vm.set_sender(funder);
+        c.reclaim(id).unwrap();
+        let (_, _, rem_after, ..) = c.get_mandate(id).unwrap();
+        assert_eq!(rem_after, U256::ZERO);
+        // A second reclaim yields nothing (remaining is zero): the stranded 40
+        // is unreachable by the one and only ETH-moving path.
+        assert!(c.reclaim(id).is_err());
+    }
+
+    /// AUDIT 4: reclaiming a parent never touches a child's escrow, and never
+    /// strands the child: the root funder reclaims every node independently.
+    #[test]
+    fn audit_parent_reclaim_does_not_touch_or_strand_child() {
+        let vm = TestVM::default();
+        let mut c = HeroMandate::from(&vm);
+        let (eth, arb, btc) = instruments();
+        let (root, _) = tree(&[eth, arb, btc], eth);
+        let (child_root, _) = tree(&[eth, arb], eth);
+
+        let funder = vm.msg_sender();
+        let orch = Address::from([1u8; 20]);
+        let sub = Address::from([2u8; 20]);
+        vm.set_value(U256::from(500));
+        let root_id = c
+            .create_mandate(orch, vm.block_timestamp() + DAY, root, b32("m1"))
+            .unwrap();
+        vm.set_value(U256::ZERO);
+        vm.set_sender(orch);
+        // Child expires strictly before the parent (DAY/2 < DAY).
+        let child_id = c
+            .delegate(root_id, sub, U256::from(150), vm.block_timestamp() + DAY / 2, child_root, b32("m2"))
+            .unwrap();
+
+        // Advance past the CHILD expiry but not the parent's.
+        vm.set_block_timestamp(vm.block_timestamp() + DAY / 2 + 1);
+        vm.set_sender(funder);
+        // Parent is not yet expired: parent reclaim refused.
+        assert!(c.reclaim(root_id).is_err());
+        // The root funder (propagated to the child) can reclaim the child now.
+        c.reclaim(child_id).unwrap();
+        let (_, _, child_rem, ..) = c.get_mandate(child_id).unwrap();
+        assert_eq!(child_rem, U256::ZERO);
+        // Parent remaining is untouched by the child reclaim: still 350.
+        let (_, _, parent_rem, ..) = c.get_mandate(root_id).unwrap();
+        assert_eq!(parent_rem, U256::from(350));
+
+        // Once the parent expires the funder reclaims the rest.
+        vm.set_block_timestamp(vm.block_timestamp() + DAY);
+        c.reclaim(root_id).unwrap();
+        let (_, _, parent_rem2, ..) = c.get_mandate(root_id).unwrap();
+        assert_eq!(parent_rem2, U256::ZERO);
+    }
+
+    /// AUDIT 2: merkle forgery attempts fail. A proof valid for a sibling
+    /// symbol does not carry a different symbol; a non-member with an empty
+    /// or borrowed proof is refused; a single-leaf scope only admits its leaf.
+    #[test]
+    fn audit_merkle_forgery_is_refused() {
+        let vm = TestVM::default();
+        let mut c = HeroMandate::from(&vm);
+        let (eth, arb, btc) = instruments();
+        // Child scope is {ETH, ARB}; BTC is NOT in it.
+        let (child_root, _) = tree(&[eth, arb], eth);
+        let (_, eth_proof) = tree(&[eth, arb], eth);
+        let (root, _) = tree(&[eth, arb, btc], eth);
+
+        let orch = Address::from([1u8; 20]);
+        let sub = Address::from([2u8; 20]);
+        vm.set_value(U256::from(500));
+        let root_id = c
+            .create_mandate(orch, vm.block_timestamp() + DAY, root, b32("m1"))
+            .unwrap();
+        vm.set_value(U256::ZERO);
+        vm.set_sender(orch);
+        let child_id = c
+            .delegate(root_id, sub, U256::from(150), vm.block_timestamp() + DAY / 2, child_root, b32("m2"))
+            .unwrap();
+        vm.set_sender(sub);
+        let (_, root_proof_btc) = tree(&[eth, arb, btc], btc);
+
+        // Attack A: try to pass BTC using ETH's sibling proof at the child.
+        // eth_proof is ARB's leaf; folding BTC's leaf with ARB's leaf will not
+        // reach child_root. Refused with a scope breach.
+        assert!(!c
+            .execute(child_id, btc, U256::from(10), vec![eth_proof.clone(), root_proof_btc.clone()])
+            .unwrap());
+
+        // Attack B: empty proof for a multi-leaf root. computed==leaf!=root.
+        assert!(!c
+            .execute(child_id, eth, U256::from(10), vec![vec![], root_proof_btc.clone()])
+            .unwrap());
+
+        // Attack C: wrong number of sub-proofs (too many). Refused before any
+        // hashing: proofs.len() must equal depth+1.
+        assert!(!c
+            .execute(child_id, eth, U256::from(10), vec![eth_proof.clone(), eth_proof.clone(), eth_proof.clone()])
+            .unwrap());
+
+        // Attack D: a single-leaf scope admits exactly its own leaf and no
+        // other, even with an empty proof (root == leaf case).
+        let pay = b32("PAY-USDC");
+        let other = b32("PAY-DAI");
+        let (single_root, _) = tree(&[pay], pay);
+        vm.set_value(U256::from(10));
+        vm.set_sender(orch);
+        let single_id = c
+            .create_mandate(orch, vm.block_timestamp() + DAY, single_root, b32("mp"))
+            .unwrap();
+        vm.set_value(U256::ZERO);
+        // Correct leaf, empty proof: allowed.
+        assert!(c.execute(single_id, pay, U256::from(1), vec![vec![]]).unwrap());
+        // Different leaf, empty proof: refused.
+        assert!(!c.execute(single_id, other, U256::from(1), vec![vec![]]).unwrap());
+    }
+
+    /// AUDIT 7: two executes in the same block (identical timestamp,
+    /// instrument, and amount) still produce distinct receipt heads because
+    /// the previous head is folded in. No replay, no fork, no collision.
+    #[test]
+    fn audit_receipt_chain_no_collision_in_one_block() {
+        let vm = TestVM::default();
+        let mut c = HeroMandate::from(&vm);
+        let (eth, arb, btc) = instruments();
+        let (root, root_proof_eth) = tree(&[eth, arb, btc], eth);
+
+        let orch = Address::from([1u8; 20]);
+        vm.set_value(U256::from(500));
+        let id = c
+            .create_mandate(orch, vm.block_timestamp() + DAY, root, b32("m1"))
+            .unwrap();
+        vm.set_value(U256::ZERO);
+        vm.set_sender(orch);
+
+        let (_, _, _, _, _, model, head0, _) = c.get_mandate(id).unwrap();
+        assert_eq!(head0, B256::ZERO);
+        // Two identical executes at the same timestamp.
+        c.execute(id, eth, U256::from(10), vec![root_proof_eth.clone()]).unwrap();
+        let (_, _, _, _, _, _, head1, _) = c.get_mandate(id).unwrap();
+        c.execute(id, eth, U256::from(10), vec![root_proof_eth.clone()]).unwrap();
+        let (_, _, _, _, _, _, head2, _) = c.get_mandate(id).unwrap();
+
+        let expect1 = receipt_hash(B256::ZERO, eth, U256::from(10), model, vm.block_timestamp());
+        let expect2 = receipt_hash(head1, eth, U256::from(10), model, vm.block_timestamp());
+        assert_eq!(head1, expect1);
+        assert_eq!(head2, expect2);
+        assert_ne!(head1, head2); // distinct heads despite identical inputs
+    }
+
+    /// AUDIT 5: the expiry boundary is a clean switchover with no overlap and
+    /// no gap. At now == expiry, execute breaches (expired) and reclaim is
+    /// allowed. One instant earlier, execute works and reclaim is refused.
+    #[test]
+    fn audit_expiry_boundary_is_consistent() {
+        let vm = TestVM::default();
+        let mut c = HeroMandate::from(&vm);
+        let (eth, arb, btc) = instruments();
+        let (root, root_proof_eth) = tree(&[eth, arb, btc], eth);
+
+        let funder = vm.msg_sender();
+        let orch = Address::from([1u8; 20]);
+        let start = vm.block_timestamp();
+        let expiry = start + DAY;
+        vm.set_value(U256::from(500));
+        let id = c.create_mandate(orch, expiry, root, b32("m1")).unwrap();
+        vm.set_value(U256::ZERO);
+
+        // One second before expiry: execute allowed, reclaim refused.
+        vm.set_block_timestamp(expiry - 1);
+        vm.set_sender(orch);
+        assert!(c.execute(id, eth, U256::from(1), vec![root_proof_eth.clone()]).unwrap());
+        vm.set_sender(funder);
+        assert!(c.reclaim(id).is_err());
+
+        // Exactly at expiry: execute breaches (expired), reclaim allowed.
+        vm.set_block_timestamp(expiry);
+        vm.set_sender(orch);
+        let (_, _, _, _, _, _, _, breaches_before) = c.get_mandate(id).unwrap();
+        assert!(!c.execute(id, eth, U256::from(1), vec![root_proof_eth.clone()]).unwrap());
+        let (_, _, _, _, _, _, _, breaches_after) = c.get_mandate(id).unwrap();
+        assert_eq!(breaches_after, breaches_before + 1); // expired breach recorded
+        vm.set_sender(funder);
+        c.reclaim(id).unwrap(); // reclaim succeeds exactly at expiry
+    }
+
     #[test]
     fn reclaim_after_expiry() {
         let vm = TestVM::default();
