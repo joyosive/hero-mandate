@@ -1,0 +1,7 @@
+.env
+node_modules/
+target/
+out/
+cache/
+.next/
+.DS_Store
