@@ -19,6 +19,7 @@ import {
   type ReactNode,
 } from "react";
 import { usePrefersReducedMotion } from "@/components/console/hooks";
+import TechStrip from "@/components/tech-strip";
 import { CountUp } from "./countup";
 import {
   SETTLEMENTS,
@@ -442,6 +443,8 @@ export default function Settlement() {
           </div>
         )}
       </div>
+
+      <TechStrip chips={["heromandate", "mpp", "permit2"]} />
 
       <p className="mt-2 max-w-[680px] font-mono text-[12px] leading-relaxed text-muted">
         Replaying the on-chain settlement, every step verifiable. This

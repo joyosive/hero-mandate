@@ -42,6 +42,7 @@ import {
 import { MandateTree } from "@/components/console/tree";
 import { Stat } from "@/components/console/stat";
 import { VerifyDrawer } from "@/components/console/verify";
+import TechStrip from "@/components/tech-strip";
 
 function LoadingPanel({ text }: { text: string }) {
   return (
@@ -216,6 +217,8 @@ function ConsoleInner() {
           </button>
         </div>
       </div>
+
+      <TechStrip chips={["heromandate"]} />
 
       <p className="mt-2 font-mono text-[10.5px] text-muted">
         {chain.label} · chain {chain.id} ·{" "}

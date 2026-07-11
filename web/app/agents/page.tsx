@@ -31,6 +31,7 @@ import { CopyText } from "@/components/console/copy";
 import { fmtEth, relTime } from "@/components/console/format";
 import { useNow } from "@/components/console/hooks";
 import { Stat } from "@/components/console/stat";
+import TechStrip from "@/components/tech-strip";
 
 function AgentCard({
   rec,
@@ -210,6 +211,8 @@ function AgentsInner() {
           </button>
         </div>
       </div>
+
+      <TechStrip chips={["heromandate"]} />
 
       <p className="mt-2 max-w-[640px] font-mono text-[12px] leading-relaxed text-muted">
         Hire agents on proven behavior. Every number below is recomputable
