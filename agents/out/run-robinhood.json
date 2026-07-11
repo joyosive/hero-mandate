@@ -1,0 +1,88 @@
+{
+  "chain": "robinhood",
+  "network": "Robinhood Chain testnet",
+  "contract": "0x0dfca3eabfde4e4714057a326058611e040dcdd9",
+  "explorerTxBase": "https://explorer.testnet.chain.robinhood.com/tx/",
+  "wallets": {
+    "treasury": "0x73e702E06ECaFc8e143fd5e70CB1BA21C53c7e9c",
+    "orchestrator": "0xF296C882B3E54bC283631d79C3a7AeDc1BE549e3",
+    "momentum": "0x5614D7C233044416dEE4E1797e35A3eA387F193A"
+  },
+  "fundingTxs": {
+    "orchestrator": "0x537cc088b922cb3be5a4e6cf9e3b810302412b64dfa6e3cd1a17e8bda7153960",
+    "momentum": "0x6af50daa11b05e7ca520d082a721b10c36cbf3f5ae4bf1ee28b76da47e08be54"
+  },
+  "executions": [
+    {
+      "instrument": "ETH-USD",
+      "amountWei": "400000000000000",
+      "txHash": "0xe1946fecea893aae20e1726de29a7c6f656557fabc5acfdf8fefd9261e3d4a42",
+      "newHead": "0xd7b2e3a19f70dc82cdc423ca61a2b35910b977d41a2ee7e58a61e752772d27f6",
+      "timestamp": "1783745531"
+    },
+    {
+      "instrument": "ARB-USD",
+      "amountWei": "300000000000000",
+      "txHash": "0x0a50700057345e337223dcd37b6eb1e8c30330ea85b21e3c20f6d98454fddfd3",
+      "newHead": "0x6c642c9fd8684ec9bbef7cdea6ffafb51cff0fc3bb13eb25ea6b2c65d0dbeca6",
+      "timestamp": "1783745536"
+    }
+  ],
+  "breaches": [
+    {
+      "instrument": "BTC-USD",
+      "amountWei": "200000000000000",
+      "code": 3,
+      "nodeId": "2",
+      "txHash": "0x90113fda345c6ab1515299f548c0acbfd0faec9998162281423ea7e74ca3bbac"
+    },
+    {
+      "instrument": "ETH-USD",
+      "amountWei": "5000000000000000",
+      "code": 2,
+      "nodeId": "2",
+      "txHash": "0x89721efe95faa782252c8dcd18a4835f876bb55d93b7eddd53f1edadec0cfbac"
+    }
+  ],
+  "verification": {
+    "root": {
+      "nodeId": "1",
+      "receipts": 0,
+      "headOnChain": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "headRecomputed": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "verdict": "VERIFIED"
+    },
+    "momentum": {
+      "nodeId": "2",
+      "receipts": 2,
+      "headOnChain": "0x6c642c9fd8684ec9bbef7cdea6ffafb51cff0fc3bb13eb25ea6b2c65d0dbeca6",
+      "headRecomputed": "0x6c642c9fd8684ec9bbef7cdea6ffafb51cff0fc3bb13eb25ea6b2c65d0dbeca6",
+      "verdict": "VERIFIED"
+    }
+  },
+  "mandates": {
+    "root": {
+      "id": "1",
+      "agent": "0xF296C882B3E54bC283631d79C3a7AeDc1BE549e3",
+      "remainingWei": "3500000000000000",
+      "expiry": "1783831920",
+      "scopeRoot": "0x42f9195cd8e2a1245fb201716d64d4fea0027eef76a575aac294d2cb959fc60b",
+      "modelHash": "0x4f791a2aaf13bbe274065e6f2c4cb37632ad8ef34ec730bd475ffb6b71f86bd6",
+      "receiptHead": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "breaches": "0",
+      "createTx": "0xdeeda57d86d564f1e122122a06c71db08d9d45f3cedd9a5f631e844a401872c3"
+    },
+    "momentum": {
+      "id": "2",
+      "agent": "0x5614D7C233044416dEE4E1797e35A3eA387F193A",
+      "remainingWei": "800000000000000",
+      "expiry": "1783788720",
+      "scopeRoot": "0xe460a7366e55f5e153fb4bb97f70d7559cd2fab0c80cec57fca02ac3ecbd0a98",
+      "modelHash": "0x74a7953748775e9b9e569562c316c3bc25e4d20e369c6fa6ab8848a261cdcd77",
+      "receiptHead": "0x6c642c9fd8684ec9bbef7cdea6ffafb51cff0fc3bb13eb25ea6b2c65d0dbeca6",
+      "breaches": "2",
+      "delegateTx": "0x1f462a1952ae5d3a33d9e40ca8d4af6c1080936c1cb29cf631815778754fc703"
+    }
+  },
+  "generatedAt": "2026-07-11T04:52:31.185Z"
+}

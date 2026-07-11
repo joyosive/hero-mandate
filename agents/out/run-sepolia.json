@@ -1,0 +1,88 @@
+{
+  "chain": "sepolia",
+  "network": "Arbitrum Sepolia",
+  "contract": "0x0dfca3eabfde4e4714057a326058611e040dcdd9",
+  "explorerTxBase": "https://sepolia.arbiscan.io/tx/",
+  "wallets": {
+    "treasury": "0x73e702E06ECaFc8e143fd5e70CB1BA21C53c7e9c",
+    "orchestrator": "0xF296C882B3E54bC283631d79C3a7AeDc1BE549e3",
+    "momentum": "0x5614D7C233044416dEE4E1797e35A3eA387F193A"
+  },
+  "fundingTxs": {
+    "orchestrator": "0x75a5222cb338bb328fc7b4c1c0744d3863a6d52ee6be6131abb0090869bd790e",
+    "momentum": "0x459c7f54987b02accad67253c5b209dc76d768b9c0accb3cd4f7a68cc04f2179"
+  },
+  "executions": [
+    {
+      "instrument": "ETH-USD",
+      "amountWei": "400000000000000",
+      "txHash": "0xb6daccfaf64822039b3fcea549ed9c4a6d9b91879566f622814efd9ef219c148",
+      "newHead": "0x593032b9b16bbe432736a26ad0632475b0d839dc34122f5cea5f8936de04b939",
+      "timestamp": "1783745589"
+    },
+    {
+      "instrument": "ARB-USD",
+      "amountWei": "300000000000000",
+      "txHash": "0x68179d33e19f11af208ea64ce55aac09efcb6d138885834a791019b936198899",
+      "newHead": "0xc9de473044cb75af077a221b1913ba38749185b80dc9e220f03fc6b7e1c4ef16",
+      "timestamp": "1783745594"
+    }
+  ],
+  "breaches": [
+    {
+      "instrument": "BTC-USD",
+      "amountWei": "200000000000000",
+      "code": 3,
+      "nodeId": "2",
+      "txHash": "0xa07841a63cc184905f39b321c89dba944cb550221316c5b2e76d4723ae409a33"
+    },
+    {
+      "instrument": "ETH-USD",
+      "amountWei": "5000000000000000",
+      "code": 2,
+      "nodeId": "2",
+      "txHash": "0x78b840d9ecba672008285a8834269eb62db88ef4f85e838a917ea4aadf273d95"
+    }
+  ],
+  "verification": {
+    "root": {
+      "nodeId": "1",
+      "receipts": 0,
+      "headOnChain": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "headRecomputed": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "verdict": "VERIFIED"
+    },
+    "momentum": {
+      "nodeId": "2",
+      "receipts": 2,
+      "headOnChain": "0xc9de473044cb75af077a221b1913ba38749185b80dc9e220f03fc6b7e1c4ef16",
+      "headRecomputed": "0xc9de473044cb75af077a221b1913ba38749185b80dc9e220f03fc6b7e1c4ef16",
+      "verdict": "VERIFIED"
+    }
+  },
+  "mandates": {
+    "root": {
+      "id": "1",
+      "agent": "0xF296C882B3E54bC283631d79C3a7AeDc1BE549e3",
+      "remainingWei": "3500000000000000",
+      "expiry": "1783831979",
+      "scopeRoot": "0x42f9195cd8e2a1245fb201716d64d4fea0027eef76a575aac294d2cb959fc60b",
+      "modelHash": "0x4f791a2aaf13bbe274065e6f2c4cb37632ad8ef34ec730bd475ffb6b71f86bd6",
+      "receiptHead": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "breaches": "0",
+      "createTx": "0xeca21485b8669ce48f6ee7569bafe497b70a86267adf48da5d4ae0fa946d6875"
+    },
+    "momentum": {
+      "id": "2",
+      "agent": "0x5614D7C233044416dEE4E1797e35A3eA387F193A",
+      "remainingWei": "800000000000000",
+      "expiry": "1783788779",
+      "scopeRoot": "0xe460a7366e55f5e153fb4bb97f70d7559cd2fab0c80cec57fca02ac3ecbd0a98",
+      "modelHash": "0x74a7953748775e9b9e569562c316c3bc25e4d20e369c6fa6ab8848a261cdcd77",
+      "receiptHead": "0xc9de473044cb75af077a221b1913ba38749185b80dc9e220f03fc6b7e1c4ef16",
+      "breaches": "2",
+      "delegateTx": "0x9b185e87b14e7e34d2dedad866ba99497344acd7e17ea753916e20adb2760d42"
+    }
+  },
+  "generatedAt": "2026-07-11T04:53:28.750Z"
+}
