@@ -34,7 +34,7 @@ authority itself the enforceable object:
   the exact mandate node, leaving the parent chain untouched.
 - Decision is bound to deed: every receipt folds in the mandate's model
   hash. Receipts chain as head = keccak(prevHead, instrument, amount,
-  modelHash, timestamp, blockNumber). One altered byte breaks the chain.
+  modelHash, timestamp). One altered byte breaks the chain.
   Anyone can recompute it from events. Tamper evident, not tamper proof.
 
 Hero Mandate never touches execution, custody, routing, or tokenized

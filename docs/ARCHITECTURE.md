@@ -45,7 +45,7 @@ action AND records a Breach event pinned to that exact mandate node, so the
 failure is attributable at the right level of the chain.
 
 Receipts are a per-mandate hash chain: head = keccak(prevHead, instrument,
-amount, modelHash, timestamp, blockNumber). One altered byte breaks the
+amount, modelHash, timestamp). One altered byte breaks the
 chain. Anyone can recompute from events. Tamper evident, never tamper proof.
 
 ## What Hero Mandate does NOT do
