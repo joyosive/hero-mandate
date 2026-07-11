@@ -3,12 +3,16 @@
 // Receipts table: executed receipts and refused breaches in one
 // chronological feed, newest first. Breach rows are err-tinted and carry a
 // permanent err left border; receipt rows get an acid left border on hover.
+// Rows are keyed by stable event identity (activityKeys); rows whose key
+// appears in newKeys mount with a one-shot slide-in and background flash.
 
+import { useMemo } from "react";
 import { BREACH_MEANING, txUrl, type ChainInfo } from "@/lib/chain";
 import { shortHash } from "@/lib/chain";
 import type { ActivityRow } from "@/lib/agents";
 import { fmtEth, relTime } from "./format";
 import { useNow } from "./hooks";
+import { activityKeys } from "./motion";
 
 const TH =
   "px-3 py-2 text-left font-mono text-[9.5px] font-normal uppercase tracking-[0.16em] text-dim";
@@ -48,12 +52,16 @@ export function ActivityTable({
   rows,
   chain,
   live,
+  newKeys,
 }: {
   rows: ActivityRow[];
   chain: ChainInfo;
   live: boolean;
+  // Keys of rows that arrived in the latest poll; only these animate in.
+  newKeys?: Set<string>;
 }) {
   const now = useNow(1000);
+  const keys = useMemo(() => activityKeys(rows), [rows]);
   const receipts = rows.filter((r) => r.kind === "receipt").length;
   const breaches = rows.length - receipts;
 
@@ -92,8 +100,10 @@ export function ActivityTable({
               {rows.map((row, i) =>
                 row.kind === "receipt" ? (
                   <tr
-                    key={i}
-                    className="group border-t border-line2 transition-colors hover:bg-acid/[0.04]"
+                    key={keys[i]}
+                    className={`group border-t border-line2 transition-colors hover:bg-acid/[0.04] ${
+                      newKeys?.has(keys[i]) ? "com-row-new" : ""
+                    }`}
                   >
                     <td className="whitespace-nowrap px-3 py-2 tabular-nums text-muted transition-shadow group-hover:shadow-[inset_2px_0_0_var(--color-acid)]">
                       {row.timestamp !== null
@@ -116,8 +126,10 @@ export function ActivityTable({
                   </tr>
                 ) : (
                   <tr
-                    key={i}
-                    className="border-t border-line2 bg-err/[0.06]"
+                    key={keys[i]}
+                    className={`border-t border-line2 bg-err/[0.06] ${
+                      newKeys?.has(keys[i]) ? "com-row-new-err" : ""
+                    }`}
                   >
                     <td className="whitespace-nowrap px-3 py-2 tabular-nums text-err/70 shadow-[inset_2px_0_0_var(--color-err)]">
                       {row.timestamp !== null

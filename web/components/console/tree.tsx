@@ -2,6 +2,9 @@
 
 // Mandate tree panel: one row card per node, children indented under their
 // parent with a thin connector line. Everything numeric is mono.
+// Motion (all optional, driven by the poll diff in motion.tsx): capacity
+// bars ease to their new width, a drained amount floats up by the bar, and
+// a node that just acted gets a one-shot radar ring on its card border.
 
 import {
   addressUrl,
@@ -48,7 +51,7 @@ function CapacityBar({ node }: { node: MandateNode }) {
       aria-label={`${fmtEth(node.remaining)} of ${fmtEth(node.capacity)} ETH remaining`}
     >
       <div
-        className="absolute inset-y-0 left-0 bg-acid/85"
+        className="absolute inset-y-0 left-0 bg-acid/85 transition-[width] duration-[600ms] ease-out"
         style={{ width: `${pct}%` }}
       />
       <div className="absolute inset-y-0 right-1.5 flex items-center">
@@ -65,15 +68,27 @@ function NodeCard({
   chain,
   live,
   onVerify,
+  drain,
+  ping,
+  epoch,
 }: {
   node: MandateNode;
   chain: ChainInfo;
   live: boolean;
   onVerify: (node: MandateNode) => void;
+  // Capacity drained since the last poll, if any.
+  drain?: bigint;
+  // True when this node gained a receipt or breach in the last poll.
+  ping?: boolean;
+  // Poll epoch; keys the one-shot elements so each change replays once.
+  epoch?: number;
 }) {
   const isRoot = node.parentId === 0;
   return (
-    <div className="panel p-3 transition-colors duration-150 hover:border-acid/70">
+    <div className="panel relative p-3 transition-colors duration-150 hover:border-acid/70">
+      {ping && (
+        <span key={`ping-${epoch}`} aria-hidden="true" className="com-ping" />
+      )}
       {/* id, agent, breach counter */}
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
         <span className={`pill ${isRoot ? "pill-acid" : ""}`}>
@@ -100,8 +115,13 @@ function NodeCard({
         </span>
         <Expiry expiry={node.expiry} />
       </div>
-      <div className="mt-1">
+      <div className="relative mt-1">
         <CapacityBar node={node} />
+        {drain !== undefined && (
+          <span key={`tick-${epoch}`} aria-hidden="true" className="com-tick">
+            -{fmtEth(drain)} ETH
+          </span>
+        )}
       </div>
 
       {/* commitments */}
@@ -159,15 +179,29 @@ function Branch({
   chain,
   live,
   onVerify,
+  drains,
+  pings,
+  epoch,
 }: {
   node: MandateNode;
   chain: ChainInfo;
   live: boolean;
   onVerify: (node: MandateNode) => void;
+  drains?: Map<number, bigint>;
+  pings?: Set<number>;
+  epoch?: number;
 }) {
   return (
     <div>
-      <NodeCard node={node} chain={chain} live={live} onVerify={onVerify} />
+      <NodeCard
+        node={node}
+        chain={chain}
+        live={live}
+        onVerify={onVerify}
+        drain={drains?.get(node.id)}
+        ping={pings?.has(node.id)}
+        epoch={epoch}
+      />
       {node.children.length > 0 && (
         <div className="ml-3 mt-3 space-y-3 border-l border-dim/50 pl-3 sm:ml-4 sm:pl-4">
           {node.children.map((child) => (
@@ -181,6 +215,9 @@ function Branch({
                 chain={chain}
                 live={live}
                 onVerify={onVerify}
+                drains={drains}
+                pings={pings}
+                epoch={epoch}
               />
             </div>
           ))}
@@ -195,11 +232,18 @@ export function MandateTree({
   chain,
   live,
   onVerify,
+  drains,
+  pings,
+  epoch,
 }: {
   roots: MandateNode[];
   chain: ChainInfo;
   live: boolean;
   onVerify: (node: MandateNode) => void;
+  // Poll diff (motion.tsx): drained amounts, acting nodes, poll epoch.
+  drains?: Map<number, bigint>;
+  pings?: Set<number>;
+  epoch?: number;
 }) {
   return (
     <div className="space-y-3">
@@ -210,6 +254,9 @@ export function MandateTree({
           chain={chain}
           live={live}
           onVerify={onVerify}
+          drains={drains}
+          pings={pings}
+          epoch={epoch}
         />
       ))}
     </div>

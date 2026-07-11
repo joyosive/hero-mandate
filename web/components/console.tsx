@@ -14,6 +14,7 @@ import {
   useRef,
   useState,
 } from "react";
+import Link from "next/link";
 import { CHAINS as SITE_CHAINS, CONTRACT, useChain } from "@/components/shell";
 import {
   CHAINS,
@@ -32,6 +33,12 @@ import { ActivityTable } from "@/components/console/activity";
 import { CopyText } from "@/components/console/copy";
 import { fmtEth, relTime } from "@/components/console/format";
 import { useNow } from "@/components/console/hooks";
+import {
+  BlockTick,
+  MotionStyles,
+  fetchBlockNumber,
+  useChainDiff,
+} from "@/components/console/motion";
 import { MandateTree } from "@/components/console/tree";
 import { Stat } from "@/components/console/stat";
 import { VerifyDrawer } from "@/components/console/verify";
@@ -55,6 +62,7 @@ function ConsoleInner() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [breachTs, setBreachTs] = useState<Map<string, number>>(new Map());
+  const [block, setBlock] = useState<number | null>(null);
   const [verifyNode, setVerifyNode] = useState<MandateNode | null>(null);
   const keyRef = useRef(dataKey);
   keyRef.current = dataKey;
@@ -63,6 +71,12 @@ function ConsoleInner() {
     async (next: ChainState, forKey: string) => {
       if (keyRef.current !== forKey) return;
       setState(next);
+      // Block heartbeat: piggybacks on this apply, no extra polling loop.
+      if (next.mode === "live") {
+        fetchBlockNumber(next.chain).then((b) => {
+          if (b !== null && keyRef.current === forKey) setBlock(b);
+        });
+      }
       const ts = await fetchBreachTimestamps(next);
       if (keyRef.current === forKey) setBreachTs(ts);
     },
@@ -75,6 +89,7 @@ function ConsoleInner() {
     setLoading(true);
     setState(null);
     setBreachTs(new Map());
+    setBlock(null);
     setVerifyNode(null);
     loadChainState(dataKey).then(async (s) => {
       if (cancelled) return;
@@ -112,6 +127,9 @@ function ConsoleInner() {
   const now = useNow(1000);
   const live = state?.mode === "live";
   const contractAddress = state?.contractAddress ?? CONTRACT;
+  // Poll-to-poll diff: new event rows, capacity drains, acting nodes.
+  // First load and chain switches only set a baseline (no animation).
+  const diff = useChainDiff(state, dataKey);
 
   const flat = useMemo(
     () => (state ? flattenNodes(state.roots) : []),
@@ -135,6 +153,7 @@ function ConsoleInner() {
 
   return (
     <main className="mx-auto max-w-[1280px] px-4 pb-16 pt-8 md:px-6">
+      <MotionStyles />
       {/* header row */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <h1 className="font-display text-[26px] font-bold tracking-tight text-white sm:text-[30px]">
@@ -149,6 +168,7 @@ function ConsoleInner() {
             {live ? "live" : "sim"}
           </span>
         )}
+        {live && block !== null && <BlockTick block={block} />}
         <span className="flex items-center gap-2 font-mono text-[11px]">
           <span className="text-[9.5px] uppercase tracking-[0.16em] text-dim">
             contract
@@ -169,6 +189,12 @@ function ConsoleInner() {
           </a>
         </span>
         <div className="ml-auto flex items-center gap-3">
+          <Link
+            href={`/stage?chain=${siteKey}`}
+            className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted underline decoration-dim underline-offset-2 transition-colors hover:text-acid hover:decoration-acid focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-acid"
+          >
+            Stage
+          </Link>
           {state && (
             <span className="font-mono text-[10px] tabular-nums text-muted">
               refreshed {relTime(Math.floor(state.fetchedAt / 1000), now)}
@@ -236,6 +262,9 @@ function ConsoleInner() {
               chain={chain}
               live={live}
               onVerify={setVerifyNode}
+              drains={diff.drains}
+              pings={diff.pings}
+              epoch={diff.epoch}
             />
           )}
         </section>
@@ -244,7 +273,12 @@ function ConsoleInner() {
           {loading || !state ? (
             <LoadingPanel text="Reading chain state" />
           ) : (
-            <ActivityTable rows={activity} chain={chain} live={live} />
+            <ActivityTable
+              rows={activity}
+              chain={chain}
+              live={live}
+              newKeys={diff.newRowKeys}
+            />
           )}
         </div>
       </div>

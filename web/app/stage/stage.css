@@ -1,0 +1,90 @@
+/* Stage-only keyframes and marquee machinery, imported by app/stage/page.tsx.
+   The global prefers-reduced-motion rule in globals.css collapses all of
+   these to instant end states; the stage components additionally replace
+   the marquee with a static list and skip the scripted SIM replay under
+   reduced motion. */
+
+/* Executed takeover: one slide-up entrance. */
+@keyframes stage-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.stage-slide-up {
+  animation: stage-slide-up 400ms ease-out both;
+}
+
+/* Breach takeover: a single hard flash on the band, then decay. No loop. */
+@keyframes stage-hard-flash {
+  0% {
+    background-color: rgba(255, 84, 112, 0.3);
+  }
+  25% {
+    background-color: rgba(255, 84, 112, 0.3);
+  }
+  100% {
+    background-color: rgba(255, 84, 112, 0);
+  }
+}
+.stage-hard-flash {
+  animation: stage-hard-flash 900ms ease-out both;
+}
+
+/* Ticker tape: two identical copies inside the track; translating the
+   track by -50% loops seamlessly. Hover or keyboard focus pauses it. */
+@keyframes stage-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.stage-marquee {
+  overflow: hidden;
+  width: 100%;
+}
+.stage-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: stage-marquee var(--marquee-dur, 48s) linear infinite;
+}
+.stage-marquee:hover .stage-marquee-track,
+.stage-marquee:focus-within .stage-marquee-track {
+  animation-play-state: paused;
+}
+
+/* Drained-amount tick floating up beside a stage bar. */
+@keyframes stage-tick-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+}
+.stage-tick {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 4px);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--color-acid);
+  background: rgba(10, 11, 9, 0.92);
+  border: 1px solid rgba(170, 255, 0, 0.35);
+  border-radius: 6px;
+  padding: 0.2em 0.5em;
+  pointer-events: none;
+  animation: stage-tick-rise 1.4s ease-out forwards;
+}
