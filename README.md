@@ -94,11 +94,11 @@ npm run dev
 
 | Chain | Chain ID | Contract | Explorer |
 | --- | --- | --- | --- |
-| Robinhood Chain testnet | 46630 | `{MANDATE_ADDRESS_RH}` | `{EXPLORER_LINK_RH}` |
-| Arbitrum Sepolia | 421614 | `{MANDATE_ADDRESS_SEPOLIA}` | `{EXPLORER_LINK_SEPOLIA}` |
+| Robinhood Chain testnet | 46630 | `0x0dfca3eabfde4e4714057a326058611e040dcdd9` | [view](https://explorer.testnet.chain.robinhood.com/address/0x0dfca3eabfde4e4714057a326058611e040dcdd9) |
+| Arbitrum Sepolia | 421614 | `0x0dfca3eabfde4e4714057a326058611e040dcdd9` | [view](https://sepolia.arbiscan.io/address/0x0dfca3eabfde4e4714057a326058611e040dcdd9) |
 
-Same WASM binary on both chains. Placeholders are filled by the deploy
-script; see docs/DEPLOYMENTS.md.
+Same WASM binary, same address, both chains. Deploy and activation txs in
+docs/DEPLOYMENTS.md. Live scenario runs in agents/out/.
 
 ## Honesty
 
