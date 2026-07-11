@@ -113,7 +113,7 @@ export default function OpsStrip({
             <Tile
               label="Capacity escrowed · ETH"
               target={Number(formatEther(stats.escrowedWei))}
-              decimals={2}
+              decimals={Number(formatEther(stats.escrowedWei)) < 1 ? 4 : 2}
               run={revealed}
             />
           </>

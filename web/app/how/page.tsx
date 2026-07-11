@@ -136,23 +136,21 @@ export default function HowPage() {
             behind the decision. Decision bound to deed, exactly:
           </p>
           <div className="overflow-x-auto rounded-md border border-line bg-panel2 p-3.5 font-mono text-[12px] leading-relaxed text-white">
-            <div>
-              newHead = keccak256(abi.encodePacked(
+            <div>newHead = keccak256(abi.encodePacked(</div>
+            <div className="pl-5">
+              prevHead,<span className="pl-3 text-dim">// bytes32, zero for the first receipt</span>
             </div>
             <div className="pl-5">
-              prevHead,<span className="text-dim">    // bytes32, zero for the first receipt</span>
+              instrument,<span className="pl-3 text-dim">// bytes32</span>
             </div>
             <div className="pl-5">
-              instrument,<span className="text-dim">  // bytes32</span>
+              amount,<span className="pl-3 text-dim">// uint256</span>
             </div>
             <div className="pl-5">
-              amount,<span className="text-dim">      // uint256</span>
+              modelHash,<span className="pl-3 text-dim">// bytes32</span>
             </div>
             <div className="pl-5">
-              modelHash,<span className="text-dim">   // bytes32</span>
-            </div>
-            <div className="pl-5">
-              timestamp<span className="text-dim">    // uint64</span>
+              timestamp<span className="pl-3 text-dim">// uint64</span>
             </div>
             <div>))</div>
           </div>
