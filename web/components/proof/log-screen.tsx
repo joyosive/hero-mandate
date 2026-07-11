@@ -9,7 +9,7 @@
 // rendered ONLY as a React {value}. There is no dangerouslySetInnerHTML and no
 // HTML is ever built from user input, so stored/reflected XSS is impossible by
 // construction. A hidden honeypot drops bots; input lengths are capped; the
-// optional email is validated but never enters the receipt or the export.
+// required email is validated but never enters the receipt or the export.
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -91,10 +91,14 @@ export function LogScreen() {
       return;
     }
 
-    // Optional email. Empty is fine; non-empty must look like an address.
+    // Email is required and must be a valid address.
     const em = email.trim();
-    if (em !== "" && !EMAIL_RE.test(em)) {
-      setEmailError("Enter a valid email or leave it blank.");
+    if (em === "") {
+      setEmailError("Email is required.");
+      return;
+    }
+    if (!EMAIL_RE.test(em)) {
+      setEmailError("Enter a valid email address.");
       return;
     }
     setEmailError(null);
@@ -131,8 +135,12 @@ export function LogScreen() {
       root: r.root,
     });
 
-    setWhat("");
+    // Reset the form so the next entry starts clean.
+    setType(TASK_TYPES[0]);
+    setWho("");
+    setEmail("");
     setHours("");
+    setWhat("");
     whoRef.current?.focus();
   }
 
@@ -224,7 +232,7 @@ export function LogScreen() {
         <div className="flex flex-col gap-x-3 sm:flex-row">
           <div className="min-w-0 flex-1">
             <label htmlFor="email" className={labelCls}>
-              Email (optional)
+              Email
             </label>
             <input
               id="email"
