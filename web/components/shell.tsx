@@ -61,12 +61,15 @@ function HeaderInner() {
               </Link>
             );
           })}
-          <a
-            href="/log.html"
-            className="rounded-md px-3 py-1.5 font-mono text-[11px] uppercase tracking-[1.2px] text-muted no-underline transition-colors hover:text-white hover:no-underline"
+          <Link
+            href="/log"
+            aria-current={pathname === "/log" ? "page" : undefined}
+            className={`rounded-md px-3 py-1.5 font-mono text-[11px] uppercase tracking-[1.2px] no-underline transition-colors hover:no-underline ${
+              pathname === "/log" ? "bg-panel text-acid" : "text-muted hover:text-white"
+            }`}
           >
             Log
-          </a>
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -112,9 +115,15 @@ function HeaderInner() {
             </Link>
           );
         })}
-        <a href="/log.html" className="whitespace-nowrap rounded-md px-3 py-1 font-mono text-[10.5px] uppercase tracking-[1px] text-muted no-underline">
+        <Link
+          href="/log"
+          aria-current={pathname === "/log" ? "page" : undefined}
+          className={`whitespace-nowrap rounded-md px-3 py-1 font-mono text-[10.5px] uppercase tracking-[1px] no-underline ${
+            pathname === "/log" ? "bg-panel text-acid" : "text-muted"
+          }`}
+        >
           Log
-        </a>
+        </Link>
       </nav>
     </header>
   );
@@ -139,7 +148,7 @@ export function Footer() {
           <a href={`${CHAINS.robinhood.explorer}/address/${CONTRACT}`} target="_blank" rel="noopener noreferrer">Robinhood Chain</a>
           <a href={`${CHAINS.sepolia.explorer}/address/${CONTRACT}`} target="_blank" rel="noopener noreferrer">Arbitrum Sepolia</a>
           <a href={REPO_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="/log.html" className="text-dim hover:text-acid">Log an action</a>
+          <Link href="/log" className="text-dim hover:text-acid">Log an action</Link>
           <span className="text-dim">testnet · no token · tamper evident</span>
         </div>
       </div>
