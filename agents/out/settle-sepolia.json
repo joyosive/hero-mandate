@@ -16,7 +16,7 @@
     "decimals": 6,
     "deployTx": null,
     "txs": {
-      "opsTopUp": "0xe866a873c0c9feaa1d5abd32f7fe27287bf4091bf29cc031e8254b2f3e7af2c1"
+      "opsTopUp": "0x27b94f61e41981e572ae6efc5135bbc0c9273b93b9beec72a1cd1b8ead951030"
     }
   },
   "mandate": {
@@ -29,34 +29,34 @@
     ]
   },
   "authorize": {
-    "challengeId": "chg-settle-002",
-    "executeTx": "0x07cd445e36462442cdad34e4a6c900bbdc16467efa42a6f2f83e8e19ef5f464b",
-    "receiptHead": "0x7d46a4d273750a343ccafb3a5d98f60788cfa673cd4cae9c08dbd4620eb8d288",
-    "challengeHash": "0x9476f67b7289c3144e42a5b96658368741ec411c5659fa701779642b831c834f",
-    "nonce": "1783760040433",
-    "deadline": "1783763640",
+    "challengeId": "chg-settle-003",
+    "executeTx": "0x06ff8a7193c52648857904a889d4fbdfae0397e3870307409dce5fa26dfc4b2f",
+    "receiptHead": "0x5b690aab84357af70ff551ebb9686c2424260c7af3bf87e619ebb7934c45b200",
+    "challengeHash": "0x153cc2d897fbf96a820ed4316c01108d4e79f0b12dafa6831a5c0fd9ad46356d",
+    "nonce": "1783778102304",
+    "deadline": "1783781702",
     "credentialVerified": true
   },
-  "approveTx": "0x7489ac964b5e6bcff19a188dbf455b5f5659d641588744f74f3722ff694cfe31",
+  "approveTx": "already-approved",
   "settlement": {
-    "tx": "0x612a1094866ade49930ac002443e1b7b3eecb72d512b784a3aceb88194f97582",
+    "tx": "0x7024269a986ae30c366d7df7c5df81fd0c621dd6e33655ee04a48125db4dfdb5",
     "token": "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
     "amount": "5000000",
-    "vendorBefore": "0",
-    "vendorAfter": "5000000",
+    "vendorBefore": "10000000",
+    "vendorAfter": "15000000",
     "opsBefore": "5000000",
     "opsAfter": "0"
   },
   "replay": {
-    "tx": "0x066d35c31b9a7a19a50a12e0bd1059bc8d7d53bfb2ad9fa2aec140449532d0a9",
-    "reverted": true,
+    "tx": null,
+    "reverted": false,
     "selector": "0x756688fe",
     "invalidNonce": true
   },
   "cost": {
-    "treasuryBeforeWei": "19704578940635230",
-    "treasuryAfterWei": "19703239552795230",
-    "spentWei": "1339387840000"
+    "treasuryBeforeWei": "19696526299563230",
+    "treasuryAfterWei": "19689694763401230",
+    "spentWei": "6831536162000"
   },
-  "generatedAt": "2026-07-11T08:54:19.916Z"
+  "generatedAt": "2026-07-11T13:55:12.988Z"
 }

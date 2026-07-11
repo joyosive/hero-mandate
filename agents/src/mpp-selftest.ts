@@ -182,9 +182,10 @@ async function main(): Promise<void> {
   // 1b. Binding: the witness challenge hash equals createChallengeHash under the
   // receipt head realm, and a different receipt head produces a different hash.
   {
+    const authorizedAmount = paid.credential.transferDetails[0].requestedAmount;
     const recomputed = createChallengeHash({
       id: "chg-001",
-      realm: mandateRealm(paid.credential.receiptHead),
+      realm: mandateRealm(paid.credential.receiptHead, authorizedAmount),
       transferDetails: paid.credential.transferDetails,
     });
     assert.equal(paid.credential.witness.challengeHash, recomputed, "witness must equal the recomputed challenge hash");
@@ -192,7 +193,7 @@ async function main(): Promise<void> {
     assert.notEqual(otherHead, paid.credential.receiptHead);
     const otherHash = createChallengeHash({
       id: "chg-001",
-      realm: mandateRealm(otherHead),
+      realm: mandateRealm(otherHead, authorizedAmount),
       transferDetails: paid.credential.transferDetails,
     });
     assert.notEqual(paid.credential.witness.challengeHash, otherHash, "a different receipt head must change the challenge hash");
@@ -241,6 +242,70 @@ async function main(): Promise<void> {
     assert.equal(verifyCredential(forgedAmount, agent.address, SIM_CHAIN_ID), false, "tampered amount must break verification");
     assert.ok(verifyCredential(paid.credential, agent.address, SIM_CHAIN_ID), "the untouched credential still verifies");
     pass("tampering with the receipt head or amount breaks credential verification");
+  }
+
+  // 5. Payment binding (audit M2): the credential is bound to the EXACT
+  // authorized amount, not merely to the fact that some execute() ran. The
+  // executed amount lives inside the realm, hence inside the signed witness.
+  {
+    const authorizedAmount = paid.credential.transferDetails[0].requestedAmount;
+    assert.equal(authorizedAmount, paid.credential.permit.permitted[0].amount, "honest permit covers the authorized amount");
+
+    // (a) The honest credential, built for its executed amount, verifies.
+    assert.ok(
+      verifyCredential(paid.credential, agent.address, SIM_CHAIN_ID),
+      "the honest credential verifies against its own authorized amount",
+    );
+
+    // (b) Altering the permit amount after signing must fail: the permit no
+    // longer matches the amount folded into its realm, and the signature no
+    // longer recovers to the agent for the new amount.
+    const bumpedAmount = "5000000";
+    assert.notEqual(bumpedAmount, authorizedAmount, "the altered permit amount must differ from the authorized amount");
+    const bumpedPermit = {
+      ...paid.credential,
+      permit: {
+        ...paid.credential.permit,
+        permitted: [{ ...paid.credential.permit.permitted[0], amount: bumpedAmount }],
+      },
+    };
+    assert.equal(
+      verifyCredential(bumpedPermit, agent.address, SIM_CHAIN_ID),
+      false,
+      "a credential whose permit amount was altered after signing must fail verification",
+    );
+
+    // (c) A credential built for amount X cannot be re-presented as
+    // authorization for a different amount Y. Even after rewriting every amount
+    // field to Y and recomputing the challenge hash under the Y realm (so the
+    // credential is internally consistent), it still fails: the agent only ever
+    // signed the X permit and the X witness.
+    const Y = "2000000";
+    assert.notEqual(Y, authorizedAmount, "Y must differ from the authorized amount X");
+    const transferDetailsY = [{ ...paid.credential.transferDetails[0], requestedAmount: Y }];
+    const witnessHashY = createChallengeHash({
+      id: paid.credential.challengeId,
+      realm: mandateRealm(paid.credential.receiptHead, Y),
+      transferDetails: transferDetailsY,
+    });
+    const repricedForY = {
+      ...paid.credential,
+      permit: {
+        ...paid.credential.permit,
+        permitted: [{ ...paid.credential.permit.permitted[0], amount: Y }],
+      },
+      transferDetails: transferDetailsY,
+      witness: { challengeHash: witnessHashY },
+    };
+    assert.equal(
+      verifyCredential(repricedForY, agent.address, SIM_CHAIN_ID),
+      false,
+      "a credential built for amount X cannot be re-presented as authorization for amount Y",
+    );
+
+    // The honest credential is untouched by any of the tampering above.
+    assert.ok(verifyCredential(paid.credential, agent.address, SIM_CHAIN_ID), "the honest credential still verifies");
+    pass("credential is bound to the exact authorized amount: altered and re-priced credentials both fail");
   }
 
   console.log("");

@@ -4,8 +4,9 @@
 // the spend via execute(), which decrements escrowed capacity and extends
 // the receipt hash chain. The credential is @arbitrum/mpp's permit2 wire
 // format, and the new receipt head is folded into the package's own
-// challenge hash through the realm string, so a payment credential cannot
-// exist without on-chain authority.
+// challenge hash through the realm string, together with the exact amount
+// that execute() authorized, so a payment credential cannot exist without
+// on-chain authority for that precise amount.
 
 import { Contract, TypedDataField, Wallet, keccak256, toUtf8Bytes, verifyTypedData } from "ethers";
 // @arbitrum/mpp v0.1.0 does not list its utils module in the package exports
@@ -53,9 +54,15 @@ export const SIM_CHAIN_ID = 421614;
 
 // ---------------------------------------------------------------- credential binding
 
-/** Realm string binding a challenge hash to a mandate receipt head. */
-export function mandateRealm(receiptHead: string): string {
-  return `hero-mandate/${receiptHead}`;
+/**
+ * Realm string binding a challenge hash to a mandate receipt head AND the
+ * exact amount that execute() authorized. Folding the executed amount in here
+ * puts it inside the challenge hash, hence inside the signed permit2 witness,
+ * so the credential proves this precise amount was authorized on-chain, not
+ * merely that some execute() happened.
+ */
+export function mandateRealm(receiptHead: string, executedAmount: bigint | string): string {
+  return `hero-mandate/${receiptHead}/${executedAmount.toString()}`;
 }
 
 /**
@@ -68,15 +75,29 @@ export function toEthersTypes(typed: ReturnType<typeof buildPermit2TypedData>): 
 }
 
 /**
- * Anyone can verify: recompute the challenge hash from the credential's own
- * transfer details under the receipt head realm, check it matches the signed
- * witness, then recover the permit2 typed data signer and compare.
+ * Anyone can verify: bind the permit amount to the amount the mandate
+ * authorized, recompute the challenge hash from the credential's own transfer
+ * details under the amount-bearing receipt head realm, check it matches the
+ * signed witness, then recover the permit2 typed data signer and compare.
+ *
+ * The authorized amount is the requestedAmount in transferDetails, which is
+ * what execute() decremented and what the realm folds into the witness. A
+ * credential whose permit covers a different amount than the realm authorizes
+ * is rejected before any signature check.
  */
 export function verifyCredential(credential: MandateBoundCredential, expectedAgent: string, chainId: number): boolean {
   try {
+    // The amount this credential is presented as authorization for.
+    const permitAmount = credential.permit.permitted[0].amount;
+    // The amount actually authorized on-chain, carried in the transfer details
+    // and folded into the realm (hence into the signed challenge hash).
+    const authorizedAmount = credential.transferDetails[0].requestedAmount;
+    // Strong binding: the permit must cover exactly the authorized amount, so
+    // a credential built for one amount cannot be re-presented for another.
+    if (permitAmount !== authorizedAmount) return false;
     const expectedHash = createChallengeHash({
       id: credential.challengeId,
-      realm: mandateRealm(credential.receiptHead),
+      realm: mandateRealm(credential.receiptHead, authorizedAmount),
       transferDetails: credential.transferDetails,
     });
     if (expectedHash !== credential.witness.challengeHash) return false;
@@ -163,11 +184,14 @@ export class MandateGuard {
     this.log(`SIM preflight: mandate ${this.mandateId} remaining ${m.remaining}, ${verdict}`);
 
     // 2. Execute on-chain: reveal exactly one leaf, prove it up the lineage.
+    // This is the exact amount the mandate authorizes and decrements; the
+    // credential below is bound to it so authority and payment cannot diverge.
+    const executedAmount = challenge.amount;
     const proofs = this.proofStack(symbol);
     const tx = await this.contract.getFunction("execute")(
       this.mandateId,
       instrumentId(symbol),
-      challenge.amount,
+      executedAmount,
       proofs,
     );
     const receipt = await tx.wait();
@@ -185,18 +209,27 @@ export class MandateGuard {
       if (!parsed) continue;
 
       // 3. Executed: the mandate allowed the spend. Fold the new receipt head
-      // into MPP's challenge hash via the realm, then sign the permit2 typed
-      // data, so payment and authority stay one object.
+      // AND the exact authorized amount into MPP's challenge hash via the
+      // realm, then sign the permit2 typed data, so payment and authority stay
+      // one object bound to this precise amount.
       if (parsed.name === "Executed" && BigInt(parsed.args.id) === this.mandateId) {
         const receiptHead = String(parsed.args.newHead);
         const chainId = await this.chainId();
-        const transferDetails = [{ to: challenge.payTo, requestedAmount: challenge.amount.toString() }];
+        const transferDetails = [{ to: challenge.payTo, requestedAmount: executedAmount.toString() }];
         const challengeHash = createChallengeHash({
           id: challenge.id,
-          realm: mandateRealm(receiptHead),
+          realm: mandateRealm(receiptHead, executedAmount),
           transferDetails,
         });
-        const permitted = [{ token: this.settlement.token ?? DEMO_USDC, amount: challenge.amount.toString() }];
+        const permitted = [{ token: this.settlement.token ?? DEMO_USDC, amount: executedAmount.toString() }];
+        // Never sign a permit for a different amount than the mandate just
+        // authorized. Both are built from executedAmount, so on the honest path
+        // this always holds; it throws only if a future change lets them drift.
+        if (permitted[0].amount !== executedAmount.toString()) {
+          throw new Error(
+            `permit amount ${permitted[0].amount} does not equal the executed amount ${executedAmount.toString()}`,
+          );
+        }
         // Permit2 nonces are unordered uint256 values; derived from the
         // challenge id by default, or supplied by the caller when a real
         // settlement needs a fresh unused nonce per run.
@@ -212,7 +245,7 @@ export class MandateGuard {
         });
         const signature = await this.agentWallet.signTypedData(typed.domain, toEthersTypes(typed), typed.message);
         this.log(`executed on-chain, receipt head ${receiptHead}`);
-        this.log(`SIM MPP permit2 credential signed by ${this.agentWallet.address}, receipt head bound via challenge hash realm`);
+        this.log(`SIM MPP permit2 credential signed by ${this.agentWallet.address}, receipt head and amount ${executedAmount.toString()} bound via challenge hash realm`);
         return {
           ok: true,
           credential: {

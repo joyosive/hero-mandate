@@ -390,8 +390,8 @@ async function main(): Promise<void> {
     nonceFor: () => nonce,
   });
   const challenge: MppChallenge = {
-    // chg-settle-002 is the real-USDC series; chg-settle-001 was the demo token.
-    id: tokenMode === "usdc" ? "chg-settle-002" : "chg-settle-001",
+    // chg-settle-00x is the real-USDC series; chg-settle-001 was the demo token.
+    id: tokenMode === "usdc" ? "chg-settle-003" : "chg-settle-001",
     payTo: vendor.address,
     asset: "USDC",
     amount: SETTLE_AMOUNT,
