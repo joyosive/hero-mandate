@@ -1,0 +1,146 @@
+{
+  "chain": "robinhood",
+  "network": "Robinhood Chain testnet",
+  "contract": "0x0dfca3eabfde4e4714057a326058611e040dcdd9",
+  "explorerTxBase": "https://explorer.testnet.chain.robinhood.com/tx/",
+  "wallets": {
+    "treasury": "0x73e702E06ECaFc8e143fd5e70CB1BA21C53c7e9c",
+    "orchestrator": "0xF296C882B3E54bC283631d79C3a7AeDc1BE549e3",
+    "momentum": "0x5614D7C233044416dEE4E1797e35A3eA387F193A",
+    "ops": "0x4b4eacc17CacBdB6d639d52c1D0cc94AB06748D5"
+  },
+  "fundingTxs": {
+    "orchestrator": "0xe2c304e2fecd2caf28be77387fbe2d99b4d94c08ff4c22286bf73c9bc84d6538",
+    "momentum": "0xbbfbb6e97ed337deb0f8db165c54a91412ab27e941cc321fa6c00d4483303395",
+    "ops": "0x679215e3b260fc200240c88c17ff7ae80cb37198157640751c8561013e3e6912"
+  },
+  "executions": [
+    {
+      "instrument": "ETH-USD",
+      "amountWei": "400000000000000",
+      "txHash": "0x6c3174503495ffc3b8fd7baa8670e0e946d370b2ee0ce72a4ba560a18484b3b5",
+      "newHead": "0x80f6b57907ec8b84a0f26a8c04217435e42757e12ce3a708bda4320caeb073c4",
+      "timestamp": "1783757049"
+    },
+    {
+      "instrument": "ARB-USD",
+      "amountWei": "300000000000000",
+      "txHash": "0xd7be915a8cb7b398099061429fab0f7a35930d68d8eb516bab868068342fe76a",
+      "newHead": "0xf4db49c3638d916ab70ac9aed85d4cce81654114dfe1214a012349ce2c62ce9f",
+      "timestamp": "1783757054"
+    }
+  ],
+  "breaches": [
+    {
+      "instrument": "BTC-USD",
+      "amountWei": "200000000000000",
+      "code": 3,
+      "nodeId": "4",
+      "txHash": "0x3abfe11eb8be077060160543d76d2631f35d16c16b4964bb929aaaffa44256a9"
+    },
+    {
+      "instrument": "ETH-USD",
+      "amountWei": "5000000000000000",
+      "code": 2,
+      "nodeId": "4",
+      "txHash": "0x8af99ba94713c6dfcf002aac46dd3de3ce3b6091ae27c1344857ba881b1c5c1d"
+    }
+  ],
+  "payment": {
+    "nodeId": "5",
+    "challengeId": "chg-stage-001",
+    "recipient": "0x1a3E0576E5777aF0C45CFa748C2B1b6321631CB5",
+    "amountWei": "200000000000000",
+    "memo": "market data feed",
+    "executeTx": "0xa53ad6713090c5c55e6d911e1bd58bf68c9c4327ade7463b39f005130cc04689",
+    "receiptHead": "0xbaf4445602e4fcdf8e201d79b4240c755599bdb0558ecab45a21d473f4e54df8",
+    "challengeHash": "0x6cc18c8f1bfa1f18b55d19c0b7afc374aee565abe72542f187d03bfddd4e04bf",
+    "signer": "0x4b4eacc17CacBdB6d639d52c1D0cc94AB06748D5",
+    "credentialVerified": true,
+    "refused": {
+      "challengeId": "chg-stage-002",
+      "amountWei": "1000000000000000",
+      "breachCode": 2,
+      "txHash": "0x00ed5d9a278d1141ab267b76d0bd0f8d75e7dd8670944c5df16ad993ddc6fea9",
+      "credentialSigned": false
+    }
+  },
+  "verification": {
+    "root": {
+      "nodeId": "3",
+      "receipts": 0,
+      "headOnChain": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "headRecomputed": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "verdict": "VERIFIED"
+    },
+    "momentum": {
+      "nodeId": "4",
+      "receipts": 2,
+      "headOnChain": "0xf4db49c3638d916ab70ac9aed85d4cce81654114dfe1214a012349ce2c62ce9f",
+      "headRecomputed": "0xf4db49c3638d916ab70ac9aed85d4cce81654114dfe1214a012349ce2c62ce9f",
+      "verdict": "VERIFIED"
+    },
+    "payments": {
+      "nodeId": "5",
+      "receipts": 1,
+      "headOnChain": "0xbaf4445602e4fcdf8e201d79b4240c755599bdb0558ecab45a21d473f4e54df8",
+      "headRecomputed": "0xbaf4445602e4fcdf8e201d79b4240c755599bdb0558ecab45a21d473f4e54df8",
+      "verdict": "VERIFIED"
+    }
+  },
+  "anchor": {
+    "status": "anchored",
+    "head": "0xf4db49c3638d916ab70ac9aed85d4cce81654114dfe1214a012349ce2c62ce9f",
+    "txHash": "0x4844f8c39c756730b266677c0b630f503d53ebf12449c6b826f9670eef9401b6",
+    "explorer": "https://sepolia.arbiscan.io/tx/0x4844f8c39c756730b266677c0b630f503d53ebf12449c6b826f9670eef9401b6",
+    "verified": true,
+    "anchoredAt": "1783757085",
+    "submitter": "0x73e702E06ECaFc8e143fd5e70CB1BA21C53c7e9c",
+    "contract": "0xb3fa3222130fac54b90e37835dce4f052349571b"
+  },
+  "cost": {
+    "treasuryBeforeWei": "13820296220817230",
+    "treasuryAfterWei": "7317264250817230",
+    "spentWei": "6503031970000000",
+    "escrowedReclaimableWei": "5000000000000000",
+    "sepoliaBeforeWei": "23731606124453230",
+    "sepoliaAfterWei": "23730631785605230",
+    "sepoliaSpentWei": "974338848000"
+  },
+  "mandates": {
+    "root": {
+      "id": "3",
+      "agent": "0xF296C882B3E54bC283631d79C3a7AeDc1BE549e3",
+      "remainingWei": "3500000000000000",
+      "expiry": "1783843438",
+      "scopeRoot": "0x9c1a35a9262814c5210ac3d235a9fac393bd0129be33189f22a02c6ba6205a99",
+      "modelHash": "0x4f791a2aaf13bbe274065e6f2c4cb37632ad8ef34ec730bd475ffb6b71f86bd6",
+      "receiptHead": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "breaches": "0",
+      "createTx": "0xb183a7baf37086abdf909cbea104b7d26c0801082587464615bf1cec991fc0a5"
+    },
+    "momentum": {
+      "id": "4",
+      "agent": "0x5614D7C233044416dEE4E1797e35A3eA387F193A",
+      "remainingWei": "800000000000000",
+      "expiry": "1783800238",
+      "scopeRoot": "0xe460a7366e55f5e153fb4bb97f70d7559cd2fab0c80cec57fca02ac3ecbd0a98",
+      "modelHash": "0x74a7953748775e9b9e569562c316c3bc25e4d20e369c6fa6ab8848a261cdcd77",
+      "receiptHead": "0xf4db49c3638d916ab70ac9aed85d4cce81654114dfe1214a012349ce2c62ce9f",
+      "breaches": "2",
+      "delegateTx": "0x694f1ccfcb329b3c5b2f733b255d9461ef8a42192d3e7cf3721ef6643bf57227"
+    },
+    "payments": {
+      "id": "5",
+      "agent": "0x4b4eacc17CacBdB6d639d52c1D0cc94AB06748D5",
+      "remainingWei": "300000000000000",
+      "expiry": "1783778669",
+      "scopeRoot": "0x37bc6f9f396529f9c8386bd319715a781d89976c541e5e211bd92ce76cf8c231",
+      "modelHash": "0x4d05179c227cd31439623a8691de90f8ef89be772b00d936df118bd5be53c71f",
+      "receiptHead": "0xbaf4445602e4fcdf8e201d79b4240c755599bdb0558ecab45a21d473f4e54df8",
+      "breaches": "1",
+      "delegateTx": "0xa40d030d760c43cf50da202c48b894301f20c1f941f93c4d922f7fcd315d6b63"
+    }
+  },
+  "generatedAt": "2026-07-11T08:04:49.990Z"
+}
