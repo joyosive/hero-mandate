@@ -3,7 +3,7 @@
 //   Permit2 permitWitnessTransferFrom -> ERC20 tokens actually move.
 // The MPP challenge transport is local (the guard labels those lines SIM);
 // every transaction in this script is real and gets an explorer link.
-// Usage: npx tsx src/settle.ts [--token usdc|demo] [--step]
+// Usage: npx tsx src/settle.ts [--chain sepolia|robinhood] [--token usdc|demo] [--step]
 
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -40,10 +40,55 @@ dotenv.config({ path: path.join(__dirname, "..", "..", ".env") });
 // ---------------------------------------------------------------- constants
 
 const HERO_MANDATE_ADDRESS = "0x0dfca3eabfde4e4714057a326058611e040dcdd9";
-const CIRCLE_USDC = TOKEN_CONTRACTS.USDC_ARBITRUM_SEPOLIA;
-const ARBISCAN_TX = "https://sepolia.arbiscan.io/tx/";
-const ARBISCAN_ADDR = "https://sepolia.arbiscan.io/address/";
-const CHAIN_ID = 421614;
+
+// Chain rails. The HeroMandate contract and canonical Permit2 carry the SAME
+// address on every chain here; only the RPC, chain id, explorer and the
+// available real stablecoin differ. Arbitrum Sepolia carries real Circle
+// testnet USDC. Robinhood Chain testnet has canonical Permit2 (confirmed
+// deployed) but NO Circle USDC, so there it settles the honestly labeled demo
+// stablecoin (hUSD) through the very same canonical Permit2.
+interface ChainConfig {
+  key: "sepolia" | "robinhood";
+  label: string;
+  chainId: number;
+  rpcEnv: string;
+  explorerTx: string;
+  explorerAddr: string;
+  circleUsdc: string | null;
+  outName: string;
+  tokenName: string;
+  challengeIdUsdc: string;
+  challengeIdDemo: string;
+}
+
+const CHAINS: Record<"sepolia" | "robinhood", ChainConfig> = {
+  sepolia: {
+    key: "sepolia",
+    label: "Arbitrum Sepolia",
+    chainId: 421614,
+    rpcEnv: "RPC_ARB_SEPOLIA",
+    explorerTx: "https://sepolia.arbiscan.io/tx/",
+    explorerAddr: "https://sepolia.arbiscan.io/address/",
+    circleUsdc: TOKEN_CONTRACTS.USDC_ARBITRUM_SEPOLIA,
+    outName: "settle-sepolia.json",
+    tokenName: "settle-token.json",
+    challengeIdUsdc: "chg-settle-003",
+    challengeIdDemo: "chg-settle-001",
+  },
+  robinhood: {
+    key: "robinhood",
+    label: "Robinhood Chain testnet",
+    chainId: 46630,
+    rpcEnv: "RPC_ROBINHOOD",
+    explorerTx: "https://explorer.testnet.chain.robinhood.com/tx/",
+    explorerAddr: "https://explorer.testnet.chain.robinhood.com/address/",
+    circleUsdc: null,
+    outName: "settle-robinhood.json",
+    tokenName: "settle-token-robinhood.json",
+    challengeIdUsdc: "chg-robinhood-001",
+    challengeIdDemo: "chg-robinhood-001",
+  },
+};
 
 const PAY_SET = ["PAY-USDC"];
 const SETTLEMENT_MODEL = keccak256(toUtf8Bytes("hero-settlement-v1"));
@@ -64,8 +109,6 @@ const PAYMENT_WITNESS_TYPEHASH = keccak256(toUtf8Bytes("PaymentWitness(bytes32 c
 const INVALID_NONCE_SELECTOR = id("InvalidNonce()").slice(0, 10);
 
 const OUT_DIR = path.join(__dirname, "..", "out");
-const OUT_FILE = path.join(OUT_DIR, "settle-sepolia.json");
-const TOKEN_FILE = path.join(OUT_DIR, "settle-token.json");
 
 // ---------------------------------------------------------------- log helpers
 
@@ -107,14 +150,29 @@ async function stepGate(beat: string): Promise<void> {
 
 // ---------------------------------------------------------------- args
 
-function parseTokenMode(argv: string[]): "usdc" | "demo" {
+const USAGE = "usage: tsx src/settle.ts [--chain sepolia|robinhood] [--token usdc|demo] [--step]";
+
+function parseChain(argv: string[]): ChainConfig {
+  const i = argv.indexOf("--chain");
+  // Default is Arbitrum Sepolia, preserving the original single-chain behavior.
+  if (i < 0) return CHAINS.sepolia;
+  const v = argv[i + 1];
+  if (v !== "sepolia" && v !== "robinhood") {
+    console.error(USAGE);
+    process.exit(1);
+  }
+  return CHAINS[v];
+}
+
+function parseTokenMode(argv: string[], net: ChainConfig): "usdc" | "demo" {
   const i = argv.indexOf("--token");
-  // Real Circle USDC is the headline path; it falls back to the demo token
-  // (with the faucet instruction) when neither wallet holds any USDC.
-  if (i < 0) return "usdc";
+  // Real Circle USDC is the headline path where it exists; on a chain with no
+  // Circle USDC (Robinhood) the honest default is the demo stablecoin. Either
+  // way the usdc path falls back to the demo token when no USDC is held.
+  if (i < 0) return net.circleUsdc ? "usdc" : "demo";
   const v = argv[i + 1];
   if (v !== "usdc" && v !== "demo") {
-    console.error("usage: tsx src/settle.ts [--token usdc|demo] [--step]");
+    console.error(USAGE);
     process.exit(1);
   }
   return v;
@@ -147,11 +205,14 @@ function revertData(err: unknown): string {
 // ---------------------------------------------------------------- main
 
 async function main(): Promise<void> {
-  const tokenModeRequested = parseTokenMode(process.argv.slice(2));
+  const net = parseChain(process.argv.slice(2));
+  const tokenModeRequested = parseTokenMode(process.argv.slice(2), net);
+  const OUT_FILE = path.join(OUT_DIR, net.outName);
+  const TOKEN_FILE = path.join(OUT_DIR, net.tokenName);
 
-  const rpc = process.env.RPC_ARB_SEPOLIA;
+  const rpc = process.env[net.rpcEnv];
   if (!rpc) {
-    console.error("missing RPC_ARB_SEPOLIA in ../.env");
+    console.error(`missing ${net.rpcEnv} in ../.env`);
     process.exit(1);
   }
   const rawPk = process.env.DEPLOYER_PRIVATE_KEY;
@@ -162,7 +223,7 @@ async function main(): Promise<void> {
   const deployerPk = rawPk.startsWith("0x") ? rawPk : `0x${rawPk}`;
 
   const provider = new JsonRpcProvider(rpc);
-  const link = (hash: string) => `${ARBISCAN_TX}${hash}`;
+  const link = (hash: string) => `${net.explorerTx}${hash}`;
 
   // Same deterministic derivation as flow.ts: keccak(deployerPk, index).
   const treasury = new Wallet(deployerPk, provider);
@@ -171,17 +232,30 @@ async function main(): Promise<void> {
 
   console.log("");
   console.log("HERO MANDATE :: real settlement :: mandate -> credential -> permit2 -> tokens");
-  console.log(`chain Arbitrum Sepolia (${CHAIN_ID})  mandate contract ${HERO_MANDATE_ADDRESS}`);
+  console.log(`chain ${net.label} (${net.chainId})  mandate contract ${HERO_MANDATE_ADDRESS}`);
   hr();
 
+  // ---- guard: the RPC must actually be the chain we think it is, because the
+  // permit2 credential is signed against this chain id and settled on-chain.
+  const liveChainId = Number((await provider.getNetwork()).chainId);
+  if (liveChainId !== net.chainId) {
+    console.error(`RPC ${net.rpcEnv} reports chainId ${liveChainId}, expected ${net.chainId} for ${net.label}`);
+    process.exit(1);
+  }
+
   // ---- rails check: everything this script settles through must have code.
-  const [permit2Code, usdcCode, mandateCode] = await Promise.all([
+  const [permit2Code, mandateCode] = await Promise.all([
     provider.getCode(PERMIT2_ADDRESS),
-    provider.getCode(CIRCLE_USDC),
     provider.getCode(HERO_MANDATE_ADDRESS),
   ]);
   log("RAILS", `canonical Permit2 ${PERMIT2_ADDRESS}  code ${(permit2Code.length - 2) / 2} bytes`);
-  log("RAILS", `Circle USDC       ${CIRCLE_USDC}  code ${(usdcCode.length - 2) / 2} bytes`);
+  let usdcCode = "0x";
+  if (net.circleUsdc) {
+    usdcCode = await provider.getCode(net.circleUsdc);
+    log("RAILS", `Circle USDC       ${net.circleUsdc}  code ${(usdcCode.length - 2) / 2} bytes`);
+  } else {
+    log("RAILS", `Circle USDC       none on ${net.label}: settling demo stablecoin hUSD through the same canonical Permit2`);
+  }
   log("RAILS", `HeroMandate       ${HERO_MANDATE_ADDRESS}  code ${(mandateCode.length - 2) / 2} bytes`);
   if (permit2Code === "0x" || mandateCode === "0x") {
     console.error("Permit2 or HeroMandate has no code on this chain, cannot settle");
@@ -201,8 +275,8 @@ async function main(): Promise<void> {
   hr();
 
   const summary: Record<string, unknown> = {
-    network: "Arbitrum Sepolia",
-    chainId: CHAIN_ID,
+    network: net.label,
+    chainId: net.chainId,
     mandateContract: HERO_MANDATE_ADDRESS,
     permit2: PERMIT2_ADDRESS,
     wallets: { treasury: treasury.address, ops: ops.address, vendor: vendor.address },
@@ -237,27 +311,28 @@ async function main(): Promise<void> {
   const tokenTxs: Record<string, string> = {};
 
   if (tokenModeRequested === "usdc") {
-    if (usdcCode === "0x") {
-      log("TOKEN", "Circle USDC has no code here, falling back to demo token");
+    if (!net.circleUsdc || usdcCode === "0x") {
+      log("TOKEN", `no Circle USDC on ${net.label}, settling the demo stablecoin instead`);
       tokenMode = "demo";
     } else {
+      const circleUsdc = net.circleUsdc;
       const [treasuryUsdc, opsUsdc] = await Promise.all([
-        balanceOf(CIRCLE_USDC, treasury.address, provider),
-        balanceOf(CIRCLE_USDC, ops.address, provider),
+        balanceOf(circleUsdc, treasury.address, provider),
+        balanceOf(circleUsdc, ops.address, provider),
       ]);
       log("TOKEN", `Circle USDC balances: treasury ${formatUnits(treasuryUsdc, 6)}  ops ${formatUnits(opsUsdc, 6)}`);
       if (opsUsdc >= SETTLE_AMOUNT) {
         tokenMode = "usdc";
-        tokenAddress = CIRCLE_USDC;
+        tokenAddress = circleUsdc;
         tokenSymbol = "USDC";
       } else if (treasuryUsdc >= SETTLE_AMOUNT) {
         // Move only what this settlement needs; the rest stays in treasury.
         const topUp = SETTLE_AMOUNT;
-        const txHash = await transfer(CIRCLE_USDC, ops.address, topUp, treasury);
+        const txHash = await transfer(circleUsdc, ops.address, topUp, treasury);
         tokenTxs.opsTopUp = txHash;
         log("TOKEN", `moved ${formatUnits(topUp, 6)} USDC treasury -> ops  tx ${link(txHash)}`);
         tokenMode = "usdc";
-        tokenAddress = CIRCLE_USDC;
+        tokenAddress = circleUsdc;
         tokenSymbol = "USDC";
       } else {
         log("TOKEN", `no Circle USDC held: claim at faucet.circle.com to the treasury address ${treasury.address}`);
@@ -297,12 +372,20 @@ async function main(): Promise<void> {
       log("TOKEN", `ops already holds ${formatUnits(opsToken, 6)} ${tokenSymbol}`);
     }
   }
-  log("TOKEN", `settling ${formatUnits(SETTLE_AMOUNT, 6)} ${tokenSymbol}  token ${ARBISCAN_ADDR}${tokenAddress}`);
+  log("TOKEN", `settling ${formatUnits(SETTLE_AMOUNT, 6)} ${tokenSymbol}  token ${net.explorerAddr}${tokenAddress}`);
+  const isDemoStablecoin = tokenMode === "demo";
+  if (isDemoStablecoin) {
+    log("TOKEN", `HONEST LABEL: ${tokenSymbol} is a demo stablecoin (not Circle USDC), settled through the real canonical Permit2`);
+  }
   summary.token = {
     mode: tokenMode,
     address: tokenAddress,
     symbol: tokenSymbol,
     decimals: 6,
+    demoStablecoin: isDemoStablecoin,
+    note: isDemoStablecoin
+      ? "hUSD is an honestly labeled demo stablecoin, settled through canonical Permit2 (not Circle USDC)"
+      : "real Circle testnet USDC",
     deployTx: tokenDeployTx,
     txs: tokenTxs,
   };
@@ -390,8 +473,9 @@ async function main(): Promise<void> {
     nonceFor: () => nonce,
   });
   const challenge: MppChallenge = {
-    // chg-settle-00x is the real-USDC series; chg-settle-001 was the demo token.
-    id: tokenMode === "usdc" ? "chg-settle-003" : "chg-settle-001",
+    // Sepolia: chg-settle-003 is the real-USDC series, chg-settle-001 the demo
+    // token. Robinhood: chg-robinhood-001 for the demo stablecoin settlement.
+    id: tokenMode === "usdc" ? net.challengeIdUsdc : net.challengeIdDemo,
     payTo: vendor.address,
     asset: "USDC",
     amount: SETTLE_AMOUNT,
@@ -406,7 +490,7 @@ async function main(): Promise<void> {
   log("AUTH", `mandate execute tx ${link(authorized.txHash)}`);
   log("AUTH", `receipt head ${short(authorized.receiptHead)}  challenge hash ${short(credential.witness.challengeHash)}`);
   log("AUTH", `permit covers the real token: ${credential.permit.permitted[0].token} amount ${credential.permit.permitted[0].amount}`);
-  const credentialVerified = verifyCredential(credential, ops.address, CHAIN_ID);
+  const credentialVerified = verifyCredential(credential, ops.address, net.chainId);
   log("AUTH", credentialVerified ? "credential verified locally (signer, hash binding)" : "CREDENTIAL VERIFICATION FAILED");
   if (!credentialVerified) process.exit(1);
   summary.authorize = {

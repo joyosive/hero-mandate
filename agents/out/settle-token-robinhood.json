@@ -1,0 +1,8 @@
+{
+  "address": "0x2674b18953149ad38a222DF82D37d220E380186D",
+  "deployTx": "0xbde4199b851105b6143c8b3fe28c9ff336f6e74bea4cfc179f6db3c2b209b454",
+  "name": "Hero Demo USD",
+  "symbol": "hUSD",
+  "decimals": 6,
+  "deployedAt": "2026-07-11T16:38:10.013Z"
+}

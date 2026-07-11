@@ -57,6 +57,25 @@ Honest note on units: mandate capacity is escrowed ETH wei and acts as abstract 
 
 Machine summary lands in `out/settle-sepolia.json` (real USDC run; the earlier demo-token run is preserved in `out/settle-sepolia-demo.json`). Cost per fresh run: about 0.003 ETH, of which 0.002 ETH is reclaimable escrow; reruns that reuse the mandate cost dust.
 
+## Settlement on Robinhood
+
+The same settlement runs on **Robinhood Chain testnet (46630)**, the prize chain, gated by the same on-chain mandate:
+
+    npx tsx src/settle.ts --chain robinhood --token demo
+
+Canonical Permit2 is deployed on Robinhood at the same address as everywhere else (`0x000000000022D473030F116dDEE9F6B43aC78BA3`, confirmed 9152 bytes), and the `HeroMandate` contract lives at the same `0x0dfca3eabfde4e4714057a326058611e040dcdd9`. Robinhood has **no Circle USDC**, so this settles a demo stablecoin, honestly labeled: **`Hero Demo USD` (`hUSD`, 6 decimals) is a demo stablecoin, NOT Circle USDC.** It moves through the real canonical Permit2 exactly like USDC does on Sepolia (source and precompiled bytecode in `src/erc20.ts`; deployment recorded in `out/settle-token-robinhood.json` and reused on later runs).
+
+The flow is identical: treasury creates a payments mandate (scope `PAY-USDC`, 0.002 ETH escrowed capacity) for the ops agent, 25 hUSD move to ops, ops approves Permit2, the challenge (`chg-robinhood-001`) is authorized on-chain through `MandateGuard` bound to the token address and the exact 5 hUSD amount, and the vendor settles via `permitWitnessTransferFrom`. Vendor hUSD goes `0 -> 5.000000`.
+
+Live run (mandate 6, challenge `chg-robinhood-001`), all real transactions with Robinhood explorer links:
+
+- hUSD deploy: https://explorer.testnet.chain.robinhood.com/tx/0xbde4199b851105b6143c8b3fe28c9ff336f6e74bea4cfc179f6db3c2b209b454
+- mandate execute: https://explorer.testnet.chain.robinhood.com/tx/0x49367a5233ba98231c0ba4579bec41dffb572c452a465c834e9637fe1e95acec
+- settlement (5.0 hUSD ops -> vendor): https://explorer.testnet.chain.robinhood.com/tx/0xa1da3dff48d85dfc858da5dc41f2a824c58f6bbc5f8d890afae085ec685c8d36
+- replay refused (reverted, `InvalidNonce()`): https://explorer.testnet.chain.robinhood.com/tx/0xe26b491f72a9c81011d0feda075fdafc2cadf3d12b73220bdc2c5f26fb63d4a9
+
+Machine summary lands in `out/settle-robinhood.json` (same shape as the Sepolia file, with a `demoStablecoin` flag on the token). Cost of the run above: about 0.003 ETH, of which 0.002 ETH is reclaimable escrow. The default `settle.ts` (no `--chain`) still settles real Circle USDC on Arbitrum Sepolia, unchanged.
+
 ## Model attestation
 
 On chain the `modelHash` is a self-declared commitment: the mandate folds a model fingerprint into every receipt, but nothing forces the party that actually ran the model to stand behind it. `src/attestation.ts` adds that party.

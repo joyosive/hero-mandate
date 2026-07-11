@@ -1,0 +1,67 @@
+{
+  "network": "Robinhood Chain testnet",
+  "chainId": 46630,
+  "mandateContract": "0x0dfca3eabfde4e4714057a326058611e040dcdd9",
+  "permit2": "0x000000000022d473030f116ddee9f6b43ac78ba3",
+  "wallets": {
+    "treasury": "0x73e702E06ECaFc8e143fd5e70CB1BA21C53c7e9c",
+    "ops": "0x4b4eacc17CacBdB6d639d52c1D0cc94AB06748D5",
+    "vendor": "0xda8E00A35bFa6285A4CE9e6B72D1792199b62255"
+  },
+  "fundingTxs": {
+    "ops": "0x740a3996b83e30caea3cd08f726f4a9b79390aa8de05f9f010d8de6b4330180d",
+    "vendor": "0x38c056f5fccdac43802403cc8981934bb859486fc558daaf091b44d2af119782"
+  },
+  "token": {
+    "mode": "demo",
+    "address": "0x2674b18953149ad38a222DF82D37d220E380186D",
+    "symbol": "hUSD",
+    "decimals": 6,
+    "demoStablecoin": true,
+    "note": "hUSD is an honestly labeled demo stablecoin, settled through canonical Permit2 (not Circle USDC)",
+    "deployTx": "0xbde4199b851105b6143c8b3fe28c9ff336f6e74bea4cfc179f6db3c2b209b454",
+    "txs": {
+      "opsTopUp": "0xc2a0318313e8a9774f4a7eaa950fc0aff29c8dcdb70b5a940a9b18360c7b3609"
+    }
+  },
+  "mandate": {
+    "id": "6",
+    "reused": false,
+    "createTx": "0xeedf46f2d5c9110c09c83416c190f3a005dfdfcb3187e491a0f25963ba26cf45",
+    "capacityWei": "2000000000000000",
+    "scope": [
+      "PAY-USDC"
+    ]
+  },
+  "authorize": {
+    "challengeId": "chg-robinhood-001",
+    "executeTx": "0x49367a5233ba98231c0ba4579bec41dffb572c452a465c834e9637fe1e95acec",
+    "receiptHead": "0x8598a07e5daecd1a35134cfb978665d1c3e32a8fc4140a2fea4fa87146d98af0",
+    "challengeHash": "0xbc1624b3443dfee27fada862c87dfb11d8ca77ff8255e47dae1bef97e4e03a74",
+    "nonce": "1783787900402",
+    "deadline": "1783791500",
+    "credentialVerified": true
+  },
+  "approveTx": "0xb3f53838f528629ea30d15b6d22121974deb3f6ac6755535119821713d785efc",
+  "settlement": {
+    "tx": "0xa1da3dff48d85dfc858da5dc41f2a824c58f6bbc5f8d890afae085ec685c8d36",
+    "token": "0x2674b18953149ad38a222DF82D37d220E380186D",
+    "amount": "5000000",
+    "vendorBefore": "0",
+    "vendorAfter": "5000000",
+    "opsBefore": "25000000",
+    "opsAfter": "20000000"
+  },
+  "replay": {
+    "tx": "0xe26b491f72a9c81011d0feda075fdafc2cadf3d12b73220bdc2c5f26fb63d4a9",
+    "reverted": true,
+    "selector": "0x756688fe",
+    "invalidNonce": true
+  },
+  "cost": {
+    "treasuryBeforeWei": "16317264250817230",
+    "treasuryAfterWei": "13304850760817230",
+    "spentWei": "3012413490000000"
+  },
+  "generatedAt": "2026-07-11T16:38:41.555Z"
+}
