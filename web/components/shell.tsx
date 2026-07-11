@@ -129,6 +129,7 @@ export function Footer() {
           <a href={`${CHAINS.robinhood.explorer}/address/${CONTRACT}`} target="_blank" rel="noopener noreferrer">Robinhood Chain</a>
           <a href={`${CHAINS.sepolia.explorer}/address/${CONTRACT}`} target="_blank" rel="noopener noreferrer">Arbitrum Sepolia</a>
           <a href={REPO_URL} target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="/log.html" className="text-dim hover:text-acid">Log an action</a>
           <span className="text-dim">testnet · no token · tamper evident</span>
         </div>
       </div>

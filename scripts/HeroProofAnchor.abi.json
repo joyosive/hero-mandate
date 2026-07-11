@@ -1,0 +1,42 @@
+[
+  {
+    "type": "function",
+    "name": "anchor",
+    "stateMutability": "nonpayable",
+    "inputs": [{ "name": "proofRoot", "type": "bytes32" }],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "anchorBatch",
+    "stateMutability": "nonpayable",
+    "inputs": [{ "name": "proofRoots", "type": "bytes32[]" }],
+    "outputs": []
+  },
+  {
+    "type": "function",
+    "name": "verify",
+    "stateMutability": "view",
+    "inputs": [{ "name": "proofRoot", "type": "bytes32" }],
+    "outputs": [
+      { "name": "anchored", "type": "bool" },
+      { "name": "timestamp", "type": "uint64" },
+      { "name": "submitter", "type": "address" }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "ProofAnchored",
+    "anonymous": false,
+    "inputs": [
+      { "name": "proofRoot", "type": "bytes32", "indexed": true },
+      { "name": "submitter", "type": "address", "indexed": true },
+      { "name": "timestamp", "type": "uint64", "indexed": false }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "AlreadyAnchored",
+    "inputs": [{ "name": "proofRoot", "type": "bytes32" }]
+  }
+]
