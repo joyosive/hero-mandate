@@ -56,3 +56,18 @@ Live run, real USDC (challenge `chg-settle-002`, mandate 3):
 Honest note on units: mandate capacity is escrowed ETH wei and acts as abstract authority units; the token amount is a separate ledger. The demo aligns them 1:1 (a 5.000000 token settlement decrements 5000000 authority units) so one number tells both stories, but the escrow does not custody the tokens: Permit2 moves the tokens, the mandate bounds and proves the authority.
 
 Machine summary lands in `out/settle-sepolia.json` (real USDC run; the earlier demo-token run is preserved in `out/settle-sepolia-demo.json`). Cost per fresh run: about 0.003 ETH, of which 0.002 ETH is reclaimable escrow; reruns that reuse the mandate cost dust.
+
+## Model attestation
+
+On chain the `modelHash` is a self-declared commitment: the mandate folds a model fingerprint into every receipt, but nothing forces the party that actually ran the model to stand behind it. `src/attestation.ts` adds that party.
+
+A *model operator* is whoever runs the model behind a `modelHash`: in production an inference provider or a TEE, in this demo a wallet derived from the deployer key at index 5 (the same derivation family as the orchestrator, momentum and ops agents). The operator publishes, in `out/model-registry.json`, the mapping `modelHash -> operator address`. For every action an agent executes, the operator signs an EIP-712 attestation (domain `HeroMandateAttestation` v1, bound to `chainId` and the mandate contract) over exactly the fields that name the deed: `mandateId`, `receiptHead`, `modelHash`, `instrument`, `amount`. The receipt head is the anchor: it already binds instrument, amount, model and timestamp into the on-chain hash chain, so the attestation is pinned to that exact on-chain state.
+
+Verification recomputes the typed-data digest, recovers the signer, and asserts it equals the operator the registry publishes for that `modelHash`. A `modelHash` absent from the registry is rejected outright; any tampered field recovers a different signer, so verification fails with "attestation does not cover this action".
+
+    npx tsx src/attestation-selftest.ts                 # no chain: valid verifies, wrong signer fails, any tampered field breaks it, unregistered modelHash rejected
+    npx tsx src/attest.ts --chain robinhood|sepolia     # reads the last run (out/flow-<chain>.json, fallback out/run-<chain>.json), attests every Executed action, prints VERIFIED lines plus one negative
+
+`attest.ts` re-executes nothing on chain: it reads the run summary, resolves each acting node's `modelHash` from the run data (or a read-only `getMandate` call if absent), attests every Executed action (the two momentum trades and, when the full flow ran, the machine payment), verifies each, and ends with a negative that tampers an amount and shows verification fails. Machine summary lands in `out/attestations-<chain>.json`.
+
+What it proves: the model operator, identified by a published key, cryptographically attests it produced this exact action, bound to the on-chain receipt head. The remaining trust is the operator itself, that its key really fronts the claimed model. Hardware attestation (a TEE) or ZK inference verification (for example Offchain Labs inference verification) removes that last step by proving which model actually ran. So the model fingerprint is self-declared commitment on chain today, operator-attested today, and trustless-attested next. Honest about where the boundary sits.

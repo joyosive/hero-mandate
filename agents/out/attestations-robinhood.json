@@ -1,0 +1,100 @@
+{
+  "chain": "robinhood",
+  "network": "Robinhood Chain testnet",
+  "contract": "0x0dFCa3eAbFDe4e4714057A326058611e040dCDD9",
+  "chainId": 46630,
+  "runSource": "flow-robinhood.json",
+  "operator": "0x5161eCE9dB11D94B9C58bBAdB1eaBD12307D0CAe",
+  "registryPath": "model-registry.json",
+  "registry": {
+    "0x4f791a2aaf13bbe274065e6f2c4cb37632ad8ef34ec730bd475ffb6b71f86bd6": {
+      "operator": "0x5161eCE9dB11D94B9C58bBAdB1eaBD12307D0CAe",
+      "label": "hero-orchestrator-v1"
+    },
+    "0x74a7953748775e9b9e569562c316c3bc25e4d20e369c6fa6ab8848a261cdcd77": {
+      "operator": "0x5161eCE9dB11D94B9C58bBAdB1eaBD12307D0CAe",
+      "label": "hero-momentum-v1"
+    },
+    "0x4d05179c227cd31439623a8691de90f8ef89be772b00d936df118bd5be53c71f": {
+      "operator": "0x5161eCE9dB11D94B9C58bBAdB1eaBD12307D0CAe",
+      "label": "hero-payer-v1"
+    }
+  },
+  "domain": {
+    "name": "HeroMandateAttestation",
+    "version": "1",
+    "chainId": 46630,
+    "verifyingContract": "0x0dFCa3eAbFDe4e4714057A326058611e040dCDD9"
+  },
+  "attestations": [
+    {
+      "mandateId": "4",
+      "instrument": "ETH-USD",
+      "amountWei": "400000000000000",
+      "receiptHead": "0x80f6b57907ec8b84a0f26a8c04217435e42757e12ce3a708bda4320caeb073c4",
+      "modelHash": "0x74a7953748775e9b9e569562c316c3bc25e4d20e369c6fa6ab8848a261cdcd77",
+      "label": "hero-momentum-v1",
+      "operator": "0x5161eCE9dB11D94B9C58bBAdB1eaBD12307D0CAe",
+      "verified": true,
+      "attestation": {
+        "chainId": 46630,
+        "contract": "0x0dFCa3eAbFDe4e4714057A326058611e040dCDD9",
+        "mandateId": "4",
+        "receiptHead": "0x80f6b57907ec8b84a0f26a8c04217435e42757e12ce3a708bda4320caeb073c4",
+        "modelHash": "0x74a7953748775e9b9e569562c316c3bc25e4d20e369c6fa6ab8848a261cdcd77",
+        "instrument": "0x4554482d55534400000000000000000000000000000000000000000000000000",
+        "amount": "400000000000000",
+        "signature": "0x3855d5bc958e4b2ca543d96e3dec0df9b2a3725acf1b9a26840e329ecd4750a36a622d7c8b9f4ac13a700af90de4b96d4de8fc493e15f88bf145e1cdb9a91aac1b"
+      }
+    },
+    {
+      "mandateId": "4",
+      "instrument": "ARB-USD",
+      "amountWei": "300000000000000",
+      "receiptHead": "0xf4db49c3638d916ab70ac9aed85d4cce81654114dfe1214a012349ce2c62ce9f",
+      "modelHash": "0x74a7953748775e9b9e569562c316c3bc25e4d20e369c6fa6ab8848a261cdcd77",
+      "label": "hero-momentum-v1",
+      "operator": "0x5161eCE9dB11D94B9C58bBAdB1eaBD12307D0CAe",
+      "verified": true,
+      "attestation": {
+        "chainId": 46630,
+        "contract": "0x0dFCa3eAbFDe4e4714057A326058611e040dCDD9",
+        "mandateId": "4",
+        "receiptHead": "0xf4db49c3638d916ab70ac9aed85d4cce81654114dfe1214a012349ce2c62ce9f",
+        "modelHash": "0x74a7953748775e9b9e569562c316c3bc25e4d20e369c6fa6ab8848a261cdcd77",
+        "instrument": "0x4152422d55534400000000000000000000000000000000000000000000000000",
+        "amount": "300000000000000",
+        "signature": "0x2354c578604402b223cef2282584bac7b379477ec60369a185f2d0f5e4bac8aa5139c4db140bfdc02924eb5303c780ead9fd9de93b4789b9fbc980f39884bdf41b"
+      }
+    },
+    {
+      "mandateId": "5",
+      "instrument": "PAY-USDC",
+      "amountWei": "200000000000000",
+      "receiptHead": "0xbaf4445602e4fcdf8e201d79b4240c755599bdb0558ecab45a21d473f4e54df8",
+      "modelHash": "0x4d05179c227cd31439623a8691de90f8ef89be772b00d936df118bd5be53c71f",
+      "label": "hero-payer-v1",
+      "operator": "0x5161eCE9dB11D94B9C58bBAdB1eaBD12307D0CAe",
+      "verified": true,
+      "attestation": {
+        "chainId": 46630,
+        "contract": "0x0dFCa3eAbFDe4e4714057A326058611e040dCDD9",
+        "mandateId": "5",
+        "receiptHead": "0xbaf4445602e4fcdf8e201d79b4240c755599bdb0558ecab45a21d473f4e54df8",
+        "modelHash": "0x4d05179c227cd31439623a8691de90f8ef89be772b00d936df118bd5be53c71f",
+        "instrument": "0x5041592d55534443000000000000000000000000000000000000000000000000",
+        "amount": "200000000000000",
+        "signature": "0x4ee085bae070a8750d5fe35b0d03778fb411f105fe127f5d3f47bb63d27ed2376eed78c879e13f140d7f68bf8e72156d678bf0257be5c6c891bc9e53410c05a71b"
+      }
+    }
+  ],
+  "negative": {
+    "mandateId": "4",
+    "field": "amount",
+    "original": "400000000000000",
+    "tampered": "400000000000001",
+    "verified": false,
+    "reason": "attestation does not cover this action"
+  },
+  "generatedAt": "2026-07-11T13:40:29.225Z"
+}

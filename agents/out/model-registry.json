@@ -1,0 +1,14 @@
+{
+  "0x4f791a2aaf13bbe274065e6f2c4cb37632ad8ef34ec730bd475ffb6b71f86bd6": {
+    "operator": "0x5161eCE9dB11D94B9C58bBAdB1eaBD12307D0CAe",
+    "label": "hero-orchestrator-v1"
+  },
+  "0x74a7953748775e9b9e569562c316c3bc25e4d20e369c6fa6ab8848a261cdcd77": {
+    "operator": "0x5161eCE9dB11D94B9C58bBAdB1eaBD12307D0CAe",
+    "label": "hero-momentum-v1"
+  },
+  "0x4d05179c227cd31439623a8691de90f8ef89be772b00d936df118bd5be53c71f": {
+    "operator": "0x5161eCE9dB11D94B9C58bBAdB1eaBD12307D0CAe",
+    "label": "hero-payer-v1"
+  }
+}
