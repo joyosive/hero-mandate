@@ -1,0 +1,63 @@
+{
+  "network": "Arbitrum Sepolia",
+  "chainId": 421614,
+  "mandateContract": "0x0dfca3eabfde4e4714057a326058611e040dcdd9",
+  "permit2": "0x000000000022d473030f116ddee9f6b43ac78ba3",
+  "wallets": {
+    "treasury": "0x73e702E06ECaFc8e143fd5e70CB1BA21C53c7e9c",
+    "ops": "0x4b4eacc17CacBdB6d639d52c1D0cc94AB06748D5",
+    "vendor": "0xda8E00A35bFa6285A4CE9e6B72D1792199b62255"
+  },
+  "fundingTxs": {
+    "ops": "0xdff0d128462300b70019b8f1ffc77e3bd6c28e3d9d095085b425fd64d80bed56",
+    "vendor": "0x3b211131e24d469f60e91117cae39e188d79aaa646a50fa1bcfe6dc76e2c0d4c"
+  },
+  "token": {
+    "mode": "demo",
+    "address": "0x2674b18953149ad38a222DF82D37d220E380186D",
+    "symbol": "hUSD",
+    "decimals": 6,
+    "deployTx": null,
+    "txs": {}
+  },
+  "mandate": {
+    "id": "3",
+    "reused": true,
+    "createTx": null,
+    "capacityWei": "2000000000000000",
+    "scope": [
+      "PAY-USDC"
+    ]
+  },
+  "authorize": {
+    "challengeId": "chg-settle-001",
+    "executeTx": "0x088ac5d5aa21a6cdb862bc695ed559b4042a35387cbb1cf93cf997c572f29e2c",
+    "receiptHead": "0xd2f363b46c0af8e4b507eca1aa283e3e6bad3b3100d206f0c99f984ef0f3c771",
+    "challengeHash": "0x2226b208f6a4f7c6703fff4b501518f25bbe85e9e1fbc3f90af3372fdec1d4c3",
+    "nonce": "1783759943058",
+    "deadline": "1783763543",
+    "credentialVerified": true
+  },
+  "approveTx": "already-approved",
+  "settlement": {
+    "tx": "0xddc79ab433d2c703ca4f0b00a6fc5adb0b2aa9d887028b766cc865e328cfd61b",
+    "token": "0x2674b18953149ad38a222DF82D37d220E380186D",
+    "amount": "5000000",
+    "vendorBefore": "5000000",
+    "vendorAfter": "10000000",
+    "opsBefore": "20000000",
+    "opsAfter": "15000000"
+  },
+  "replay": {
+    "tx": "0x3a815b5b7f86f01d0a0b2bb395df6536b31dacdd62827987fca2c105a589eb87",
+    "reverted": true,
+    "selector": "0x756688fe",
+    "invalidNonce": true
+  },
+  "cost": {
+    "treasuryBeforeWei": "20705509864737230",
+    "treasuryAfterWei": "19704578940635230",
+    "spentWei": "1000930924102000"
+  },
+  "generatedAt": "2026-07-11T08:52:38.181Z"
+}

@@ -97,6 +97,17 @@ export function verifyCredential(credential: MandateBoundCredential, expectedAge
 
 // ---------------------------------------------------------------- the guard
 
+/**
+ * Optional real-settlement knobs. Defaults preserve the original behavior
+ * exactly: the SIM demo token and a nonce derived from the challenge id.
+ */
+export interface GuardSettlementOptions {
+  /** ERC20 address the permit2 credential covers. Default DEMO_USDC (SIM). */
+  token?: string;
+  /** Unordered permit2 nonce source; supply a fresh unused nonce per challenge. */
+  nonceFor?: (challenge: MppChallenge) => bigint;
+}
+
 /** One agent operating under one mandate. Payment instruments are scope symbols like "PAY-USDC". */
 export class MandateGuard {
   constructor(
@@ -105,6 +116,7 @@ export class MandateGuard {
     private readonly agentWallet: Wallet,
     private readonly scopeSet: string[],
     private readonly ancestorSets: string[][] = [],
+    private readonly settlement: GuardSettlementOptions = {},
   ) {}
 
   /** Proofs for the agent's own scope set and every ancestor set, leaf to root order. */
@@ -184,9 +196,11 @@ export class MandateGuard {
           realm: mandateRealm(receiptHead),
           transferDetails,
         });
-        const permitted = [{ token: DEMO_USDC, amount: challenge.amount.toString() }];
-        // Permit2 nonces are unordered uint256 values; derive one from the challenge id.
-        const nonce = BigInt(keccak256(toUtf8Bytes(challenge.id)));
+        const permitted = [{ token: this.settlement.token ?? DEMO_USDC, amount: challenge.amount.toString() }];
+        // Permit2 nonces are unordered uint256 values; derived from the
+        // challenge id by default, or supplied by the caller when a real
+        // settlement needs a fresh unused nonce per run.
+        const nonce = this.settlement.nonceFor?.(challenge) ?? BigInt(keccak256(toUtf8Bytes(challenge.id)));
         const deadline = now + 3600n;
         const typed = buildPermit2TypedData({
           chainId,

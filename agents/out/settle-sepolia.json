@@ -1,0 +1,62 @@
+{
+  "network": "Arbitrum Sepolia",
+  "chainId": 421614,
+  "mandateContract": "0x0dfca3eabfde4e4714057a326058611e040dcdd9",
+  "permit2": "0x000000000022d473030f116ddee9f6b43ac78ba3",
+  "wallets": {
+    "treasury": "0x73e702E06ECaFc8e143fd5e70CB1BA21C53c7e9c",
+    "ops": "0x4b4eacc17CacBdB6d639d52c1D0cc94AB06748D5",
+    "vendor": "0xda8E00A35bFa6285A4CE9e6B72D1792199b62255"
+  },
+  "fundingTxs": {},
+  "token": {
+    "mode": "usdc",
+    "address": "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
+    "symbol": "USDC",
+    "decimals": 6,
+    "deployTx": null,
+    "txs": {
+      "opsTopUp": "0xe866a873c0c9feaa1d5abd32f7fe27287bf4091bf29cc031e8254b2f3e7af2c1"
+    }
+  },
+  "mandate": {
+    "id": "3",
+    "reused": true,
+    "createTx": null,
+    "capacityWei": "2000000000000000",
+    "scope": [
+      "PAY-USDC"
+    ]
+  },
+  "authorize": {
+    "challengeId": "chg-settle-002",
+    "executeTx": "0x07cd445e36462442cdad34e4a6c900bbdc16467efa42a6f2f83e8e19ef5f464b",
+    "receiptHead": "0x7d46a4d273750a343ccafb3a5d98f60788cfa673cd4cae9c08dbd4620eb8d288",
+    "challengeHash": "0x9476f67b7289c3144e42a5b96658368741ec411c5659fa701779642b831c834f",
+    "nonce": "1783760040433",
+    "deadline": "1783763640",
+    "credentialVerified": true
+  },
+  "approveTx": "0x7489ac964b5e6bcff19a188dbf455b5f5659d641588744f74f3722ff694cfe31",
+  "settlement": {
+    "tx": "0x612a1094866ade49930ac002443e1b7b3eecb72d512b784a3aceb88194f97582",
+    "token": "0x75faf114eafb1bdbe2f0316df893fd58ce46aa4d",
+    "amount": "5000000",
+    "vendorBefore": "0",
+    "vendorAfter": "5000000",
+    "opsBefore": "5000000",
+    "opsAfter": "0"
+  },
+  "replay": {
+    "tx": "0x066d35c31b9a7a19a50a12e0bd1059bc8d7d53bfb2ad9fa2aec140449532d0a9",
+    "reverted": true,
+    "selector": "0x756688fe",
+    "invalidNonce": true
+  },
+  "cost": {
+    "treasuryBeforeWei": "19704578940635230",
+    "treasuryAfterWei": "19703239552795230",
+    "spentWei": "1339387840000"
+  },
+  "generatedAt": "2026-07-11T08:54:19.916Z"
+}
