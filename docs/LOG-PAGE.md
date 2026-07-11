@@ -22,3 +22,9 @@ Google Apps Script `/exec` URL (see `scripts/sheet-capture.gs`) to also collect 
 Metric line: N actions logged by real people, verified on-chain, anchored into HeroProofAnchor
 tx `<fill after anchoring>` (the same contract already live at tx
 `0x3accefec0cd84166458cec60f4580febd49e305a099ac3e595dc6cd52ccac217`).
+
+## Genesis anchor (pipeline proven live)
+The first session, recording real build actions, is anchored on-chain:
+sessionRoot 0xfea258ebdd399b1a7e704794edbaf27a49d8c7856840b94aa158be01255c05b9
+tx https://sepolia.arbiscan.io/tx/0xf167f5af0e4442d08cd80ca889fac573e7b9e3eb3c9a21c72cad2e907f198047
+verify() returns true. Every community session anchors the same way.

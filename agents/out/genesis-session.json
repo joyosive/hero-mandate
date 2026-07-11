@@ -1,0 +1,96 @@
+{
+  "sessionRoot": "0xfea258ebdd399b1a7e704794edbaf27a49d8c7856840b94aa158be01255c05b9",
+  "count": 3,
+  "receipts": [
+    {
+      "root": "0xd1657b891b883474c4c8ef43a128c73423a59fee1c5cd5403c968e2701bdb186",
+      "log": [
+        {
+          "t": 0,
+          "type": "mandate",
+          "role": "proof-of-action-recorder",
+          "version": "v0.1"
+        },
+        {
+          "t": 1,
+          "type": "ops",
+          "who": "joyosive",
+          "what": "Deployed HeroMandate (Stylus) to Robinhood Chain testnet and Arbitrum Sepolia",
+          "hours": 2
+        },
+        {
+          "t": 2,
+          "type": "decide",
+          "withinMandate": true,
+          "exceptions": []
+        },
+        {
+          "t": 3,
+          "type": "result",
+          "result": "recorded",
+          "recordedAt": "2026-07-11T16:21:10.783Z"
+        }
+      ]
+    },
+    {
+      "root": "0x8a910c4f766c222a2a8a02f050dbd0fb26895b21d7bcbaf2951960a43bea3bc0",
+      "log": [
+        {
+          "t": 0,
+          "type": "mandate",
+          "role": "proof-of-action-recorder",
+          "version": "v0.1"
+        },
+        {
+          "t": 1,
+          "type": "ops",
+          "who": "joyosive",
+          "what": "Settled 5 USDC through Permit2 gated by an on-chain mandate",
+          "hours": 1
+        },
+        {
+          "t": 2,
+          "type": "decide",
+          "withinMandate": true,
+          "exceptions": []
+        },
+        {
+          "t": 3,
+          "type": "result",
+          "result": "recorded",
+          "recordedAt": "2026-07-11T16:21:10.785Z"
+        }
+      ]
+    },
+    {
+      "root": "0x655f3e5377e9b0b93dae6aaf8063aa2467fc332e55dfb1d2fd70e389b1961dbe",
+      "log": [
+        {
+          "t": 0,
+          "type": "mandate",
+          "role": "proof-of-action-recorder",
+          "version": "v0.1"
+        },
+        {
+          "t": 1,
+          "type": "ops",
+          "who": "joyosive",
+          "what": "Anchored a trading receipt head cross-chain into HeroProofAnchor",
+          "hours": 0.5
+        },
+        {
+          "t": 2,
+          "type": "decide",
+          "withinMandate": true,
+          "exceptions": []
+        },
+        {
+          "t": 3,
+          "type": "result",
+          "result": "recorded",
+          "recordedAt": "2026-07-11T16:21:10.786Z"
+        }
+      ]
+    }
+  ]
+}
