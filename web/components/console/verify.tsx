@@ -201,10 +201,17 @@ export function VerifyDrawer({
                     {view.ok ? "VERIFIED" : "BROKEN"}
                   </span>
                   <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-dim">
-                    recomputed client side from {node.receipts.length} executed
-                    event{node.receipts.length === 1 ? "" : "s"} · one altered
-                    byte breaks the chain
+                    receipt chain recomputed client side from{" "}
+                    {node.receipts.length} executed event
+                    {node.receipts.length === 1 ? "" : "s"} · one altered byte
+                    breaks the chain
                   </p>
+                  {node.breaches > 0 && (
+                    <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-err">
+                      {node.breaches} breach{node.breaches === 1 ? "" : "es"}{" "}
+                      recorded on this node · the refusals are provable too
+                    </p>
+                  )}
                 </div>
               )}
             </div>
